@@ -22,7 +22,7 @@ var new_grid = function (width, height) {
 
 var grid = {};
 
-grid.ren = {x:0, y:0, src:{white:"wren.png", green:"gren.png"}, color : "white"};
+grid.ren = {x:0, y:0, src:{white:"wren.png", green:"gren.png", orang:"oren.png"}, color : "white"};
 
 var real_tile = function (tile) {
     if (tile.hash) return grid.tilemap[tile.hash];
@@ -81,11 +81,25 @@ var map_swap = function (a, b){
     grid.tilemap[bt] = t;
 }};
 
-grid.tilemap = {"A": {id:"W", src:"white.png",  color:"white", step : color_step},
-                "B": {id:"G", src:"green.png",  color:"green", step : color_step},
+// A through E are white and green tiles. 
+// F through L introduce orange.
+
+grid.tilemap = {"A": {id:"white", src:"white.png",  color:"white", step : color_step},
+                "B": {id:"green", src:"green.png",  color:"green", step : color_step},
+                "F": {id:"orang", src:"orang.png",  color:"orang", step : color_step},
+
                 "C": {id:"WGC", src:"wgchange.png", color:"white", step : color_change("green")},
                 "D": {id:"GWC", src:"gwchange.png", color:"green", step : color_change("white")},
-                "E": {id:"GWS", src:"gwswap.png", step : map_swap("W", "G")}
+                "G": {id:"OGC", src:"ogchange.png", color:"orang", step : color_change("green")},
+                "H": {id:"GOC", src:"gochange.png", color:"green", step : color_change("orang")},
+                "I": {id:"OWC", src:"owchange.png", color:"orang", step : color_change("white")},
+                "J": {id:"WOC", src:"wochange.png", color:"white", step : color_change("orang")},
+
+                "E": {id:"GWS", src:"gwswap.png", step : map_swap("white", "green")},
+                "K": {id:"OWS", src:"owswap.png", step : map_swap("white", "orang")},
+                "L": {id:"GOS", src:"goswap.png", step : map_swap("orang", "green")}
+
+
 };
 
 grid.tiles = function (width, height) {
@@ -93,7 +107,7 @@ grid.tiles = function (width, height) {
     for(i=0; i<width; i++){
         ret[i] = [];
         for(j=0; j<height; j++){
-            ret[i][j] = {hash : "ABCDE"[Math.floor(Math.random()*5)]}
+            ret[i][j] = {hash : "ABCDE"[Math.floor(Math.random()*12)]}
         }
     }
     return ret;
