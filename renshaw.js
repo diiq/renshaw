@@ -36,7 +36,7 @@ grid.tiles = function (width, height) {
         }
     }
     return ret;
-}(7, 50);
+}(width, height);
 
 grid.map = function (f) {
     var i, j, ret = [];
@@ -50,4 +50,4 @@ grid.map = function (f) {
 
 grid.tilemap = {"A": {src:"white.png", on_step = function () {}}}
 
-}
+}(7, 50);
