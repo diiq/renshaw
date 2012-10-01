@@ -80,10 +80,23 @@ var color_change = function (color) {
     }
 };
 
-grid.tilemap = {"A": {src:"white.png",  color:"white", step : color_step},
-                "B": {src:"green.png",  color:"green", step : color_step},
-                "C": {src:"wgchange.png", color:"white", step : color_change("green")},
-                "D": {src:"gwchange.png", color:"green", step : color_change("white")}
+var map_swap = function (a, b){
+    return function(ren){
+    var t, at, bt;
+    for (tile in grid.tilemap){
+        if(grid.tilemap[tile].id === a) at = tile;
+        if(grid.tilemap[tile].id === b) bt = tile;
+    }
+    t = grid.tilemap[at];
+    grid.tilemap[at] = grid.tilemap[bt];
+    grid.tilemap[bt] = t;
+}};
+
+grid.tilemap = {"A": {id:"W", src:"white.png",  color:"white", step : color_step},
+                "B": {id:"G", src:"green.png",  color:"green", step : color_step},
+                "C": {id:"WGC", src:"wgchange.png", color:"white", step : color_change("green")},
+                "D": {id:"GWC", src:"gwchange.png", color:"green", step : color_change("white")},
+                "E": {id:"GWS", src:"gwswap.png", step : map_swap("W", "G")}
 };
 
 

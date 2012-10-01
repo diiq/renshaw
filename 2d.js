@@ -19,11 +19,23 @@ $(document).ready(function () {
 
 var grid = new_grid(50, 7);
 
+var cycle = function() {
+    var tile, ret = {}, prev = null;
+    for(tile in grid.tilemap){
+        if (grid.tilemap.hasOwnProperty(tile)) {
+            ret[tile] = prev;
+            prev = tile;
+        }
+    }
+    for(tile in grid.tilemap){
+        if (grid.tilemap.hasOwnProperty(tile)) {
+            ret[tile] = prev;
+            return ret;
+        }
+    }
+}();
+
 var tile_rot = function(grid, x, y){
-    cycle = {"A" : "B",
-             "B" : "C",
-             "C" : "D",
-             "D" : "A"};
     grid.tiles[x][y].hash = cycle[grid.tiles[x][y].hash];
 };
 
