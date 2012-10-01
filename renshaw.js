@@ -22,23 +22,12 @@ var new_grid = function (width, height) {
 
 var grid = {};
 
-grid.ren = {x:0, y:0, src:"ren.png", color : "white"};
+grid.ren = {x:0, y:0, src:{white:"wren.png", green:"gren.png"}, color : "white"};
 
 var real_tile = function (tile) {
     if (tile.hash) return grid.tilemap[tile.hash];
     return tile;
 };
-
-grid.tiles = function (width, height) {
-    var i, j, ret=[];
-    for(i=0; i<width; i++){
-        ret[i] = [];
-        for(j=0; j<height; j++){
-            ret[i][j] = {hash : "A"}
-        }
-    }
-    return ret;
-}(width, height);
 
 grid.map = function (f) {
     var i, j, ret = [];
@@ -98,6 +87,17 @@ grid.tilemap = {"A": {id:"W", src:"white.png",  color:"white", step : color_step
                 "D": {id:"GWC", src:"gwchange.png", color:"green", step : color_change("white")},
                 "E": {id:"GWS", src:"gwswap.png", step : map_swap("W", "G")}
 };
+
+grid.tiles = function (width, height) {
+    var i, j, ret=[];
+    for(i=0; i<width; i++){
+        ret[i] = [];
+        for(j=0; j<height; j++){
+            ret[i][j] = {hash : "ABCDE"[Math.floor(Math.random()*5)]}
+        }
+    }
+    return ret;
+}(width, height);
 
 
 return grid;

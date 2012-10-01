@@ -52,10 +52,19 @@ var render_tile = function (x, y, tile){
     $("#grid").append($tile);
 }
 
+var render_ren = function (ren){
+    var $tile = $("<img />");
+    $tile.attr("src", ren.src[ren.color]);
+    $tile.attr("class", "ren");
+    $tile.css({left: ren.x*theight+"px",
+               top:  ren.y*twidth +"px"});
+    $("#grid").append($tile);
+}
+
 var render = function (grid) {
     $("#grid").empty();
     grid.map(render_tile);
-    render_tile(grid.ren.x, grid.ren.y, grid.ren);
+    render_ren(grid.ren);
 };
 
 $("body").keydown(function (e) {
