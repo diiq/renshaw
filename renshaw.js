@@ -16,3 +16,10 @@ being stepped on
 Initialization lets tiles register for additional callbacks on player action.
 
 */
+
+
+var grid = function (width, height) {
+
+var grid = {};
+
+}
