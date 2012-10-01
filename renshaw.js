@@ -22,4 +22,32 @@ var grid = function (width, height) {
 
 var grid = {};
 
+var real_tile = function (tile) {
+    if (tile.hash) return grid.tilemap[tile.hash];
+    return tile;
+}
+
+grid.tiles = function (width, height) {
+    var i, j, ret=[];
+    for(i=0; i<width, i++){
+        ret[i] = [];
+        for(j=0; j<height; j++){
+            ret[i][j] = {hash = "A"}
+        }
+    }
+    return ret;
+}(7, 50);
+
+grid.map = function (f) {
+    var i, j, ret = [];
+    for(i=0; i<width, i++){
+        ret[i] = [];
+        for(j=0; j<height; j++){
+            ret[i][j] = f(i, j, real_tile(grid.tiles[i][j]));
+        }
+    }
+}
+
+grid.tilemap = {"A": {src:"white.png", on_step = function () {}}}
+
 }
