@@ -9,3 +9,13 @@ Where game is an object:
           signature:   game.map ( function (x, y, tile) )
 
 */
+
+$(document).ready(function () {
+
+
+
+
+
+
+
+}
