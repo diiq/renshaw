@@ -14,10 +14,6 @@ var
 twidth = 25,
 theight = 25;
 
-$(document).ready(function () {
-
-grid = new_grid(50, 7);
-
 var render_tile = function (x, y, tile){
     var $tile = $("<img />");
     $tile.attr("src", tile.src);
@@ -27,7 +23,27 @@ var render_tile = function (x, y, tile){
     $("#grid").append($tile);
 }
 
-grid.map(render_tile);
-render_tile(grid.ren.x, grid.ren.y, grid.ren);
+var render = function (grid) {
+    $("#grid").empty();
+    grid.map(render_tile);
+    render_tile(grid.ren.x, grid.ren.y, grid.ren);
+}
+
+$(document).ready(function () {
+
+grid = new_grid(50, 7);
+render(grid);
+
+$("body").keydown(function (e) {
+var keymap = {37:["x", -1], //left
+              38:["y", -1], // up
+              39:["x",  1], // right
+              40:["y",  1], //down
+             };
+    if (keymap[e.which]){
+        grid.move.apply({}, keymap[e.which]);
+        render(grid);
+    }
+});
 
 });

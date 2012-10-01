@@ -18,9 +18,11 @@ Initialization lets tiles register for additional callbacks on player action.
 */
 
 
-new_grid = function (width, height) {
+var new_grid = function (width, height) {
 
 var grid = {};
+
+grid.ren = {x:0, y:0, src:"ren.png"};
 
 var real_tile = function (tile) {
     if (tile.hash) return grid.tilemap[tile.hash];
@@ -48,9 +50,12 @@ grid.map = function (f) {
     }
 };
 
+grid.move = function (axis, dist) {
+    grid.ren[axis] += dist;
+};
+
 grid.tilemap = {"A": {src:"white.png", on_step : function () {}}};
 
-grid.ren = {x:0, y:0, src:"ren.png"};
 
 return grid;
 }
