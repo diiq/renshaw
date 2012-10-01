@@ -14,12 +14,29 @@ var
 twidth = 25,
 theight = 25;
 
+
+$(document).ready(function () {
+
+var grid = new_grid(50, 7);
+
+var tile_rot = function(grid, x, y){
+    cycle = {"A" : "B",
+             "B" : "C",
+             "C" : "D",
+             "D" : "A"};
+    grid.tiles[x][y].hash = cycle[grid.tiles[x][y].hash];
+};
+
 var render_tile = function (x, y, tile){
     var $tile = $("<img />");
     $tile.attr("src", tile.src);
     $tile.attr("class", "tile");
     $tile.css({left: x*theight+"px",
                top:  y*twidth +"px"});
+    $tile.click(function () {
+                    tile_rot(grid, x, y);
+                    render(grid);
+                    });
     $("#grid").append($tile);
 }
 
@@ -27,12 +44,7 @@ var render = function (grid) {
     $("#grid").empty();
     grid.map(render_tile);
     render_tile(grid.ren.x, grid.ren.y, grid.ren);
-}
-
-$(document).ready(function () {
-
-grid = new_grid(50, 7);
-render(grid);
+};
 
 $("body").keydown(function (e) {
 var keymap = {37:["x", -1], //left
@@ -45,5 +57,7 @@ var keymap = {37:["x", -1], //left
         render(grid);
     }
 });
+
+render(grid);
 
 });

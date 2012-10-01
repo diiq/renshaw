@@ -22,7 +22,7 @@ var new_grid = function (width, height) {
 
 var grid = {};
 
-grid.ren = {x:0, y:0, src:"ren.png"};
+grid.ren = {x:0, y:0, src:"ren.png", color : "white"};
 
 var real_tile = function (tile) {
     if (tile.hash) return grid.tilemap[tile.hash];
@@ -51,10 +51,40 @@ grid.map = function (f) {
 };
 
 grid.move = function (axis, dist) {
+    var ren = grid.ren,
+        prev = {x:ren.x, y:ren.y};
     grid.ren[axis] += dist;
+    if (ren.x < 0 || ren.x >= width ||
+        ren.y < 0 || ren.y >= height) {
+        ren.x = prev.x; ren.y = prev.y; // here, I begin to think .x is dumb.
+    } else {
+        ren.prev = prev;
+        real_tile(grid.tiles[ren.x][ren.y]).step(ren);
+    }
 };
 
-grid.tilemap = {"A": {src:"white.png", on_step : function () {}}};
+var color_step = function (ren) {
+    if(ren.color !== this.color){
+        ren.x = ren.prev.x;
+        ren.y = ren.prev.y;
+        return false;
+    }
+    return true;
+};
+
+var color_change = function (color) {
+    return function (ren) {
+        if (color_step.call(this, ren)) {
+            ren.color = color;
+        }
+    }
+};
+
+grid.tilemap = {"A": {src:"white.png",  color:"white", step : color_step},
+                "B": {src:"green.png",  color:"green", step : color_step},
+                "C": {src:"wgchange.png", color:"white", step : color_change("green")},
+                "D": {src:"gwchange.png", color:"green", step : color_change("white")}
+};
 
 
 return grid;
