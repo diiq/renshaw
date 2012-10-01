@@ -18,21 +18,21 @@ Initialization lets tiles register for additional callbacks on player action.
 */
 
 
-var grid = function (width, height) {
+new_grid = function (width, height) {
 
 var grid = {};
 
 var real_tile = function (tile) {
     if (tile.hash) return grid.tilemap[tile.hash];
     return tile;
-}
+};
 
 grid.tiles = function (width, height) {
     var i, j, ret=[];
-    for(i=0; i<width, i++){
+    for(i=0; i<width; i++){
         ret[i] = [];
         for(j=0; j<height; j++){
-            ret[i][j] = {hash = "A"}
+            ret[i][j] = {hash : "A"}
         }
     }
     return ret;
@@ -40,14 +40,17 @@ grid.tiles = function (width, height) {
 
 grid.map = function (f) {
     var i, j, ret = [];
-    for(i=0; i<width, i++){
+    for(i=0; i<width; i++){
         ret[i] = [];
         for(j=0; j<height; j++){
             ret[i][j] = f(i, j, real_tile(grid.tiles[i][j]));
         }
     }
+};
+
+grid.tilemap = {"A": {src:"white.png", on_step : function () {}}};
+
+grid.ren = {x:0, y:0, src:"ren.png"};
+
+return grid;
 }
-
-grid.tilemap = {"A": {src:"white.png", on_step = function () {}}}
-
-}(7, 50);

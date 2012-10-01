@@ -16,15 +16,18 @@ theight = 25;
 
 $(document).ready(function () {
 
+grid = new_grid(50, 7);
+
 var render_tile = function (x, y, tile){
     var $tile = $("<img />");
     $tile.attr("src", tile.src);
     $tile.attr("class", "tile");
-    $tile.css({left: y*theight+"px",
-               top:  x*twidth +"px"});
+    $tile.css({left: x*theight+"px",
+               top:  y*twidth +"px"});
     $("#grid").append($tile);
 }
 
 grid.map(render_tile);
+render_tile(grid.ren.x, grid.ren.y, grid.ren);
 
-}
+});
