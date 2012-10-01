@@ -10,12 +10,21 @@ Where game is an object:
 
 */
 
+var 
+twidth = 25,
+theight = 25;
+
 $(document).ready(function () {
 
+var render_tile = function (x, y, tile){
+    var $tile = $("<img />");
+    $tile.attr("src", tile.src);
+    $tile.attr("class", "tile");
+    $tile.css({left: y*theight+"px",
+               top:  x*twidth +"px"});
+    $("#grid").append($tile);
+}
 
-
-
-
-
+grid.map(render_tile);
 
 }
