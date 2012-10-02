@@ -22,9 +22,12 @@
     margin:25px;
 }
 
-.button {
+#buttons {
     float:right;
-    margin:25px;
+}
+
+.button {
+    margin:15px;
     background-color:#ccc;
     border:3px solid #333;
     border-radius: 10px;
@@ -42,6 +45,8 @@
     height:200px;
 }
 #output {
+     position:absolute;
+    bottom:10px;
     width:80%;
-    height:200px;
+    height:100px;
 }

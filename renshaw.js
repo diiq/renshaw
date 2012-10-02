@@ -34,6 +34,17 @@ grid.map = function (f) {
     for(i=0; i<width; i++){
         ret[i] = [];
         for(j=0; j<height; j++){
+           ret[i][j] = f(i, j, grid.tiles[i][j]);
+        }
+    }
+    return ret;
+};
+
+grid.realmap = function (f) {
+    var i, j, ret = [];
+    for(i=0; i<width; i++){
+        ret[i] = [];
+        for(j=0; j<height; j++){
            ret[i][j] = f(i, j, real_tile(grid.tiles[i][j]));
         }
     }
@@ -188,7 +199,7 @@ grid.export = function () {
      return ret.join(";");
 }
 
-grid.load = function (save) {///gardening here TODO
+grid.load_save = function (save) {///gardening here TODO
      var i, j;
      cols = save.split(";")
      width = cols.length;

@@ -66,7 +66,7 @@ var render_ren = function (ren){
 
 var render = function (grid) {
     $("#grid").empty();
-    grid.map(render_tile);
+    grid.realmap(render_tile);
     render_ren(grid.ren);
 };
 
@@ -91,7 +91,12 @@ $("#export").click(function(){
 });
 
 $("#load").click(function(){
-    grid.load($("#output").val());
+    grid.load_save($("#output").val());
+    render(grid);
+});
+
+$("#clear").click(function(){
+    grid.map(function(x, y, t){t.hash = "A"});
     render(grid);
 });
 
