@@ -30,8 +30,8 @@ var pallete = function () {
             var $tile = $("<img />");
             $tile.attr("src", grid.tilemap[t].src);
             $tile.attr("class", "tile");
-            $tile.css({left: (i%4)*twidth+"px",
-                       top:  Math.floor(i/4)*theight +"px"});
+            $tile.css({left: (i%40)*twidth+"px",
+                       top:  Math.floor(i/40)*theight +"px"});
             $tile.click(function(t){return function () {current = t;}}(t));
             $("#pallete").append($tile);
         }
@@ -84,6 +84,15 @@ var keymap = {37:["x", -1], //left
         grid.load();
         render(grid);
     }
+});
+
+$("#export").click(function(){
+    $("#output").val(grid.export());
+});
+
+$("#load").click(function(){
+    grid.load($("#output").val());
+    render(grid);
 });
 
 render(grid);

@@ -34,9 +34,10 @@ grid.map = function (f) {
     for(i=0; i<width; i++){
         ret[i] = [];
         for(j=0; j<height; j++){
-            ret[i][j] = f(i, j, real_tile(grid.tiles[i][j]));
+           ret[i][j] = f(i, j, real_tile(grid.tiles[i][j]));
         }
     }
+    return ret;
 };
 
 grid.move = function (axis, dist) {
@@ -175,6 +176,30 @@ grid.tilemap = {"A": {id:"white", src:"white.png",  color:"white", step : color_
 
 
 };
+
+grid.export = function () {
+     var ret = [], rs = [], i, j;
+     for(i =0; i<width; i++){
+         for(j =0; j<height; j++){
+             rs[j] = grid.tiles[i][j].hash;
+         }
+         ret[i] = rs.join(","); 
+     }
+     return ret.join(";");
+}
+
+grid.load = function (save) {///gardening here TODO
+     var i, j;
+     cols = save.split(";")
+     width = cols.length;
+     grid.tiles = [];
+     for(i=0; i<width; i++){
+         grid.tiles[i] = cols[i].split(",");
+         for(j =0; j<grid.tiles[i].length; j++){
+             grid.tiles[i][j] = {hash:grid.tiles[i][j]}
+         }
+     } 
+}
 
 grid.tiles = function (width, height) {
     var i, j, ret=[];
