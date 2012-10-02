@@ -18,25 +18,28 @@ theight = 25;
 $(document).ready(function () {
 
 var grid = new_grid(50, 7);
+var current = "A";
 
-var cycle = function() {
-    var tile, ret = {}, prev = null;
-    for(tile in grid.tilemap){
-        if (grid.tilemap.hasOwnProperty(tile)) {
-            ret[tile] = prev;
-            prev = tile;
+
+var pallete = function () {
+    var i = -1;
+    $("#pallete").css("top", theight*(8));
+    for(var t in grid.tilemap){
+        if (grid.tilemap.hasOwnProperty(t)){
+            i++;
+            var $tile = $("<img />");
+            $tile.attr("src", grid.tilemap[t].src);
+            $tile.attr("class", "tile");
+            $tile.css({left: (i%4)*twidth+"px",
+                       top:  Math.floor(i/4)*theight +"px"});
+            $tile.click(function(t){return function () {current = t;}}(t));
+            $("#pallete").append($tile);
         }
     }
-    for(tile in grid.tilemap){
-        if (grid.tilemap.hasOwnProperty(tile)) {
-            ret[tile] = prev;
-            return ret;
-        }
-    }
-}();
+}()
 
-var tile_rot = function(grid, x, y){
-    grid.tiles[x][y].hash = cycle[grid.tiles[x][y].hash];
+var tile_set = function(x, y){
+    grid.tiles[x][y].hash = current;
 };
 
 var render_tile = function (x, y, tile){
@@ -46,7 +49,7 @@ var render_tile = function (x, y, tile){
     $tile.css({left: x*theight+"px",
                top:  y*twidth +"px"});
     $tile.click(function () {
-                    tile_rot(grid, x, y);
+                    tile_set(x, y);
                     render(grid);
                     });
     $("#grid").append($tile);
@@ -75,6 +78,10 @@ var keymap = {37:["x", -1], //left
              };
     if (keymap[e.which]){
         grid.move.apply({}, keymap[e.which]);
+        render(grid);
+    }
+    if (e.which === 82){
+        grid.load();
         render(grid);
     }
 });

@@ -70,7 +70,7 @@ var color_change = function (color) {
 };
 
 var map_swap = function (a, b){
-    return function(ren){
+  var swap = function(a, b){
     var t, at, bt;
     for (tile in grid.tilemap){
         if(grid.tilemap[tile].id === a) at = tile;
@@ -79,9 +79,42 @@ var map_swap = function (a, b){
     t = grid.tilemap[at];
     grid.tilemap[at] = grid.tilemap[bt];
     grid.tilemap[bt] = t;
-}};
+  };
+  return function (ren){
+      for(var i=0; i<a.length; i++){
+          swap(a[i], b[i]);
+      }
+  };
+};
 
+var slide = function (axis, dist){
+    return function(ren){
+        if (color_step.call(this, ren)) {
+            grid.move(axis, dist);
+        }
+    };
+};
+
+var copy_obj = function (obj){
+    var ret = {};
+    for(var t in obj){
+        if (obj.hasOwnProperty(t)){
+            ret[t] = obj[t];
+        }
+    }
+    return ret;
+}
+
+var save = function (ren) {
+    grid.saved = [copy_obj(grid.tilemap), copy_obj(ren)];
+}
+
+grid.load = function(){
+    grid.tilemap = copy_obj(grid.saved[0]);
+    grid.ren = copy_obj(grid.saved[1]);
+}
 // A through E are white and green tiles. 
+// M through 
 // F through L introduce orange.
 
 grid.tilemap = {"A": {id:"white", src:"white.png",  color:"white", step : color_step},
@@ -95,9 +128,50 @@ grid.tilemap = {"A": {id:"white", src:"white.png",  color:"white", step : color_
                 "I": {id:"OWC", src:"owchange.png", color:"orang", step : color_change("white")},
                 "J": {id:"WOC", src:"wochange.png", color:"white", step : color_change("orang")},
 
-                "E": {id:"GWS", src:"gwswap.png", step : map_swap("white", "green")},
-                "K": {id:"OWS", src:"owswap.png", step : map_swap("white", "orang")},
-                "L": {id:"GOS", src:"goswap.png", step : map_swap("orang", "green")}
+                "E": {id:"GWS", src:"gwswap.png", step : map_swap(["white", 
+                                                                   "WSL",
+                                                                   "WSR",
+                                                                   "WSU",
+                                                                   "WSD"], ["green",
+                                                                            "GSL",
+                                                                            "GSR",
+                                                                            "GSU",
+                                                                            "GSD"])},
+                "K": {id:"OWS", src:"owswap.png", step : map_swap(["orang", 
+                                                                   "OSL",
+                                                                   "OSR",
+                                                                   "OSU",
+                                                                   "OSD"], ["green",
+                                                                            "GSL",
+                                                                            "GSR",
+                                                                            "GSU",
+                                                                            "GSD"])},
+                "L": {id:"GOS", src:"goswap.png", step : map_swap(["white", 
+                                                                   "WSL",
+                                                                   "WSR",
+                                                                   "WSU",
+                                                                   "WSD"], ["orang",
+                                                                            "OSL",
+                                                                            "OSR",
+                                                                            "OSU",
+                                                                            "OSD"])},
+
+                "M": {id:"WSL", src:"wleft.png", color:"white", step : slide("x", -1)},
+                "N": {id:"WSR", src:"wrigh.png", color:"white", step : slide("x", 1)},
+                "O": {id:"WSD", src:"wdown.png", color:"white", step : slide("y", 1)},
+                "P": {id:"WSU", src:"wupup.png", color:"white", step : slide("y", -1)},
+
+                "Q": {id:"GSL", src:"gleft.png", color:"green", step : slide("x", -1)},
+                "R": {id:"GSR", src:"grigh.png", color:"green", step : slide("x", 1)},
+                "S": {id:"GSD", src:"gdown.png", color:"green", step : slide("y", 1)},
+                "T": {id:"GSU", src:"gupup.png", color:"green", step : slide("y", -1)},
+
+                "U": {id:"OSL", src:"oleft.png", color:"orang", step : slide("x", -1)},
+                "V": {id:"OSR", src:"origh.png", color:"orang", step : slide("x", 1)},
+                "W": {id:"OSD", src:"odown.png", color:"orang", step : slide("y", 1)},
+                "X": {id:"OSU", src:"oupup.png", color:"orang", step : slide("y", -1)},
+
+                "$": {id:"SAVE", src:"save.png", step : save},
 
 
 };
@@ -107,12 +181,13 @@ grid.tiles = function (width, height) {
     for(i=0; i<width; i++){
         ret[i] = [];
         for(j=0; j<height; j++){
-            ret[i][j] = {hash : "ABCDE"[Math.floor(Math.random()*12)]}
+            ret[i][j] = {hash : "ABCDE$"[Math.floor(Math.random()*6)]}
         }
     }
     return ret;
 }(width, height);
 
+grid.saved = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
 
 return grid;
 }

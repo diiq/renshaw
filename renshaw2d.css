@@ -16,3 +16,18 @@
     border:0px;
     z-index:20;
 }
+
+#pallete {
+    position:absolute;
+    width:125px;
+    margin:25px;
+}
+
+#export {
+    float:right;
+    margin:25px;
+    background-color:#666;
+    border:1px solid #333;
+    border-radius: 10px;
+    padding:10px;
+}
