@@ -1,0 +1,70 @@
+body {
+background-color:#777;
+}
+
+html, body {
+    margin:0px; padding:0px; height:100%;    overflow:hidden;
+}
+
+#mask {
+    border: 1px solid #000;
+    margin: 0px auto;
+    width:600px;
+    height:100%;
+    padding:0px;
+    overflow:hidden;
+    position:relative;
+}
+
+#grid {
+    position:absolute;
+    margin:25px;
+    padding:0px;
+}
+
+.tile {
+    position:absolute;
+    margin:0px;
+    border:0px;
+}
+
+.ren {
+    position:absolute;
+    margin:0px;
+    border:0px;
+    z-index:20;
+}
+
+#pallete {
+    position:absolute;
+    margin:25px;
+}
+
+#buttons {
+    float:right;
+}
+
+.button {
+    margin:15px;
+    background-color:#ccc;
+    border:3px solid #333;
+    border-radius: 10px;
+    padding:10px;
+    cursor:pointer;
+}
+.button:hover {
+    background-color:#666;
+}
+
+#io {
+    position:absolute;
+    bottom:10px;
+    width:90%;
+    height:100px;
+}
+#output {
+     position:absolute;
+    bottom:10px;
+    width:50%;
+    height:100px;
+}
