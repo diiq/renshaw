@@ -130,9 +130,20 @@ var save = function (ren) {
     grid.saved = [copy_obj(grid.tilemap), copy_obj(ren)];
 }
 
+var minor_save = function (ren) {
+    grid.minor_saved = [ren.x, ren.y];
+}
+
 grid.load = function(){
     grid.tilemap = copy_obj(grid.saved[0]);
     grid.ren = copy_obj(grid.saved[1]);
+}
+
+grid.minor_load = function(){
+    if (grid.minor_saved){
+    grid.ren.x = grid.minor_saved[0];
+    grid.ren.y = grid.minor_saved[1];
+    }
 }
 // A through E are white and green tiles. 
 // M through 
@@ -226,7 +237,7 @@ grid.tilemap = {"A": {id:"white", src:"white.png",  color:"white", step : color_
                         "GSD":"GSR",
                         "OSD":"OSR"})},
 
-                "$": {id:"SAVE", src:"save.png", step : save},
+                "$": {id:"SAVE", src:"save.png", step : minor_save},
                 "~": {id:"WATER", src:"water.png", step : no_go},
 
 };
@@ -237,18 +248,18 @@ grid.export = function () {
          for(j =0; j<height; j++){
              rs[j] = grid.tiles[i][j].hash;
          }
-         ret[i] = rs.join(","); 
+         ret[i] = rs.join(""); 
      }
-     return ret.join(";");
+     return ret.join("\n");
 }
 
 grid.import = function (save) {///gardening here TODO
      var i, j;
-     cols = save.split(";")
+     cols = save.split("\n")
      width = cols.length;
      grid.tiles = [];
      for(i=0; i<width; i++){
-         grid.tiles[i] = cols[i].split(",");
+         grid.tiles[i] = cols[i].split("");
          for(j =0; j<grid.tiles[i].length; j++){
              grid.tiles[i][j] = {hash:grid.tiles[i][j]}
          }

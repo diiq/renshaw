@@ -84,6 +84,10 @@ var keymap = {37:["x", -1], //left
         grid.load();
         render(grid);
     }
+    if (e.which === 32){
+        grid.minor_load();
+        render(grid);
+    } 
 });
 
 $("#export").click(function(){
@@ -91,7 +95,7 @@ $("#export").click(function(){
 });
 
 $("#load").click(function(){
-    grid.load_save($("#output").val());
+    grid.import($("#output").val());
     render(grid);
 });
 
