@@ -31,7 +31,7 @@ var real_tile = function (tile) {
 
 grid.map = function (f) {
     var i, j, ret = [];
-    for(i=0; i<width; i++){
+    for(i=width-1; i>=0; i--){
         ret[i] = [];
         for(j=0; j<height; j++){
            ret[i][j] = f(i, j, grid.tiles[i][j]);
@@ -42,7 +42,7 @@ grid.map = function (f) {
 
 grid.realmap = function (f) {
     var i, j, ret = [];
-    for(i=0; i<width; i++){
+    for(i=width-1; i>=0; i--){
         ret[i] = [];
         for(j=0; j<height; j++){
            ret[i][j] = f(i, j, real_tile(grid.tiles[i][j]));
@@ -51,18 +51,34 @@ grid.realmap = function (f) {
     return ret;
 };
 
+grid.window_realmap = function (f, xmin, xmax, ymin, ymax) {
+// Right now, no loading, no fancy: just ignore it when we get to the edge.
+    var i, j, ret = [];
+    for(i=Math.min(xmax-1, width-1); i>=Math.min(ymin, 0); i--){
+        ret[i-xmin] = [];
+        for(j=Math.min(ymin, 0); j<Math.min(ymax, height); j++){
+           ret[i-xmin][j-ymin] = f(i-xmin, j-ymin, real_tile(grid.tiles[i][j]));
+        }
+    }
+    return ret;
+};
+
 grid.move = function (axis, dist) {
-    var ren = grid.ren,
-        prev = {x:ren.x, y:ren.y};
+    var ren = grid.ren;
+    ren.prev = {x:ren.x, y:ren.y};
     grid.ren[axis] += dist;
     if (ren.x < 0 || ren.x >= width ||
         ren.y < 0 || ren.y >= height) {
-        ren.x = prev.x; ren.y = prev.y; // here, I begin to think .x is dumb.
+        no_go(ren);
     } else {
-        ren.prev = prev;
         real_tile(grid.tiles[ren.x][ren.y]).step(ren);
     }
 };
+
+var no_go = function (ren) {
+    ren.x = ren.prev.x; ren.y = ren.prev.y;
+    return false;
+}
 
 var color_step = function (ren) {
     if(ren.color !== this.color){
@@ -81,22 +97,18 @@ var color_change = function (color) {
     }
 };
 
-var map_swap = function (a, b){
-  var swap = function(a, b){
-    var t, at, bt;
-    for (tile in grid.tilemap){
-        if(grid.tilemap[tile].id === a) at = tile;
-        if(grid.tilemap[tile].id === b) bt = tile;
-    }
-    t = grid.tilemap[at];
-    grid.tilemap[at] = grid.tilemap[bt];
-    grid.tilemap[bt] = t;
-  };
-  return function (ren){
-      for(var i=0; i<a.length; i++){
-          swap(a[i], b[i]);
+var map_swap = function (a){
+    return function (ren){
+      var ids = {};
+      for(tile in grid.tilemap){
+          ids[grid.tilemap[tile].id] = grid.tilemap[tile];
       }
-  };
+      for(tile in grid.tilemap){
+          if (a[grid.tilemap[tile].id]) {
+              grid.tilemap[tile] = ids[a[grid.tilemap[tile].id]];
+          }
+      }
+    };
 };
 
 var slide = function (axis, dist){
@@ -140,33 +152,39 @@ grid.tilemap = {"A": {id:"white", src:"white.png",  color:"white", step : color_
                 "I": {id:"OWC", src:"owchange.png", color:"orang", step : color_change("white")},
                 "J": {id:"WOC", src:"wochange.png", color:"white", step : color_change("orang")},
 
-                "E": {id:"GWS", src:"gwswap.png", step : map_swap(["white", 
-                                                                   "WSL",
-                                                                   "WSR",
-                                                                   "WSU",
-                                                                   "WSD"], ["green",
-                                                                            "GSL",
-                                                                            "GSR",
-                                                                            "GSU",
-                                                                            "GSD"])},
-                "K": {id:"OWS", src:"owswap.png", step : map_swap(["orang", 
-                                                                   "OSL",
-                                                                   "OSR",
-                                                                   "OSU",
-                                                                   "OSD"], ["green",
-                                                                            "GSL",
-                                                                            "GSR",
-                                                                            "GSU",
-                                                                            "GSD"])},
-                "L": {id:"GOS", src:"goswap.png", step : map_swap(["white", 
-                                                                   "WSL",
-                                                                   "WSR",
-                                                                   "WSU",
-                                                                   "WSD"], ["orang",
-                                                                            "OSL",
-                                                                            "OSR",
-                                                                            "OSU",
-                                                                            "OSD"])},
+                "E": {id:"GWS", src:"gwswap.png", step : map_swap(
+                    {"white":"green",
+                     "WSL":"GSL",
+                     "WSR":"GSR",
+                     "WSU":"GSU",
+                     "WSD":"GSD",
+                     "green":"white",
+                     "GSL":"WSL",
+                     "GSR":"WSR",
+                     "GSU":"WSU",
+                     "GSD":"WSD"})}, 
+                "K": {id:"OWS", src:"owswap.png", step : map_swap(
+                    {"white":"orang",
+                     "WSL":"OSL",
+                     "WSR":"OSR",
+                     "WSU":"OSU",
+                     "WSD":"OSD",
+                     "orang":"white",
+                     "OSL":"WSL",
+                     "OSR":"WSR",
+                     "OSU":"WSU",
+                     "OSD":"WSD"})}, 
+                "L": {id:"GOS", src:"goswap.png", step : map_swap(
+                    {"green":"orang",
+                     "GSL":"OSL",
+                     "GSR":"OSR",
+                     "GSU":"OSU",
+                     "GSD":"OSD",
+                     "orang":"green",
+                     "OSL":"GSL",
+                     "OSR":"GSR",
+                     "OSU":"GSU",
+                     "OSD":"GSD"})}, 
 
                 "M": {id:"WSL", src:"wleft.png", color:"white", step : slide("x", -1)},
                 "N": {id:"WSR", src:"wrigh.png", color:"white", step : slide("x", 1)},
@@ -183,8 +201,36 @@ grid.tilemap = {"A": {id:"white", src:"white.png",  color:"white", step : color_
                 "W": {id:"OSD", src:"odown.png", color:"orang", step : slide("y", 1)},
                 "X": {id:"OSU", src:"oupup.png", color:"orang", step : slide("y", -1)},
 
-                "$": {id:"SAVE", src:"save.png", step : save},
+                "Y": {id:"RCL", src:"clock.png", step : map_swap(
+                       {"WSL":"WSU",
+                        "GSL":"GSU",
+                         "OSL":"OSU",
+                         "WSU":"WSR",
+                         "GSU":"GSR",
+                         "OSU":"OSR",
+                         "WSR":"WSD",
+                         "GSR":"GSD",
+                         "OSR":"OSD",
+                         "WSD":"WSL",
+                         "GSD":"GSL",
+                         "OSD":"OSL"})},
 
+                "Z": {id:"RCC", src:"cclock.png", step : map_swap(
+                       {"WSL":"WSD",
+                        "GSL":"GSD",
+                        "OSL":"OSD",
+                        "WSU":"WSL",
+                        "GSU":"GSL",
+                        "OSU":"OSL",
+                        "WSR":"WSU",
+                        "GSR":"GSU",
+                        "OSR":"OSU",
+                        "WSD":"WSR",
+                        "GSD":"GSR",
+                        "OSD":"OSR"})},
+
+                "$": {id:"SAVE", src:"save.png", step : save},
+                "~": {id:"WATER", src:"water.png", step : no_go},
 
 };
 
@@ -199,7 +245,7 @@ grid.export = function () {
      return ret.join(";");
 }
 
-grid.load_save = function (save) {///gardening here TODO
+grid.import = function (save) {///gardening here TODO
      var i, j;
      cols = save.split(";")
      width = cols.length;
@@ -217,7 +263,7 @@ grid.tiles = function (width, height) {
     for(i=0; i<width; i++){
         ret[i] = [];
         for(j=0; j<height; j++){
-            ret[i][j] = {hash : "ABCDE$"[Math.floor(Math.random()*6)]}
+            ret[i][j] = {hash : "ABCDE"[Math.floor(Math.random()*5)]}
         }
     }
     return ret;
