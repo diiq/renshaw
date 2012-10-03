@@ -10,7 +10,7 @@ real x == xmin, it will be sent to f as 0.
 
 Tiles provide functions for when they're stepped on.
 
-There will also be special objects; this is not eyt implemented.
+There will also be special objects; this is not yet implemented.
 
 */
 
@@ -19,48 +19,44 @@ var new_grid = function (width, height) {
 
     var grid = {};
 
+    // Ren is the player character; he changes color, so he's got multiple sources.
     grid.ren = {x:0, y:0, 
                 src:{white:"wren.png", green:"gren.png", orang:"oren.png"},
                 color : "white"};
 
     var real_tile = function (tile) {
-        if (tile.hash) return grid.tilemap[tile.hash];
-        return tile;
+    // Acceptable architechural artifact.
+        return grid.tilemap[tile.hash];
     };
 
-    grid.map = function (f) {
-        var i, j, ret = [];
-        for(i=width-1; i>=0; i--){
-            ret[i] = [];
-            for(j=0; j<height; j++){
-                ret[i][j] = f(i, j, grid.tiles[i][j]);
-            }
-        }
-        return ret;
-    };
 
-    grid.realmap = function (f) {
+    grid.map = function (f, xmin, xmax, ymin, ymax) {
+        // Silently ignore values outside domain.
+        xmin = xmin || 0; 
+        ymin = ymin || 0;
+        xmax = xmax ? Math.min(xmax, width) : width; 
+        ymax = ymax ? Math.min(ymax, height) : height;
+        // f still sees this as running from 0 to some width, 
+        // and 0 to some height, regardless of xmin and ymin.
+        // Consider: is this the place to add content loading?
         var i, j, ret = [];
-        for(i=width-1; i>=0; i--){
-            ret[i] = [];
-            for(j=0; j<height; j++){
-                ret[i][j] = f(i, j, real_tile(grid.tiles[i][j]));
-            }
-        }
-        return ret;
-    };
-
-    grid.window_realmap = function (f, xmin, xmax, ymin, ymax) {
-        // Right now, no loading, no fancy: just ignore it when we get to the edge.
-        var i, j, ret = [];
-        for(i=Math.min(xmax-1, width-1); i>=Math.min(ymin, 0); i--){
+        for(i=xmax-1; i>=Math.min(Math.abs(xmin), 0); i--){
+            // this one goes backwards for rendering convenience.
             ret[i-xmin] = [];
-            for(j=Math.min(ymin, 0); j<Math.min(ymax, height); j++){
-                ret[i-xmin][j-ymin] = f(i-xmin, j-ymin, real_tile(grid.tiles[i][j]));
+            for(j=Math.min(Math.abs(ymin), 0); j<ymax; j++){
+                ret[i-xmin][j-ymin] = f(i-xmin, j-ymin, grid.tiles[i][j]);
             }
         }
         return ret;
     };
+
+    // This one passes the actual tile
+    grid.real_map = function (f, xmin, xmax, ymin, ymax) {
+        return grid.map(function (i, j, tile){
+                            f(i, j, real_tile(tile));
+                        }, xmin, xmax, ymin, ymax);
+    };
+
 
     grid.move = function (axis, dist) {
         var ren = grid.ren;
