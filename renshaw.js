@@ -59,6 +59,7 @@ var new_grid = function (width, height) {
 
 
     grid.move = function (axis, dist) {
+        // Move ren, call tile stepped on.
         var ren = grid.ren;
         ren.prev = {x:ren.x, y:ren.y};
         grid.ren[axis] += dist;
@@ -69,6 +70,8 @@ var new_grid = function (width, height) {
             real_tile(grid.tiles[ren.x][ren.y]).step(ren);
         }
     };
+
+    /** These are tile stepping-upon functions. **/
 
     var no_go = function (ren) {
         ren.x = ren.prev.x; ren.y = ren.prev.y;
@@ -114,27 +117,8 @@ var new_grid = function (width, height) {
         };
     };
 
-    var copy_obj = function (obj){
-        var ret = {};
-        for(var t in obj){
-            if (obj.hasOwnProperty(t)){
-                ret[t] = obj[t];
-            }
-        }
-        return ret;
-    };
-
-    var save = function (ren) {
-        grid.saved = [copy_obj(grid.tilemap), copy_obj(ren)];
-    };
-
     var minor_save = function (ren) {
         grid.minor_saved = [ren.x, ren.y];
-    };
-
-    grid.load = function(){
-        grid.tilemap = copy_obj(grid.saved[0]);
-        grid.ren = copy_obj(grid.saved[1]);
     };
 
     grid.minor_load = function(){
@@ -144,10 +128,13 @@ var new_grid = function (width, height) {
         }
     };
 
-    // A through E are white and green tiles. 
-    // M through 
-    // F through L introduce orange.
+    /** The default tile mapping **/
 
+    // A through E are white and green tiles. 
+    // M through T are arrows.
+    // F through L introduce orange; T - X are orange arrows.
+    // $ saves; ~'s water.
+    // These lines are > 80 chars. Cope.
     grid.tilemap = {"A": {id:"white", src:"white.png",  color:"white", step : color_step},
                     "B": {id:"green", src:"green.png",  color:"green", step : color_step},
                     "F": {id:"orang", src:"orang.png",  color:"orang", step : color_step},
@@ -241,6 +228,8 @@ var new_grid = function (width, height) {
 
                    };
 
+    /** Saving and loading a game grid **/
+
     grid.export = function () {
         var ret = [], rs = [], i, j;
         for(i =0; i<width; i++){
@@ -274,6 +263,28 @@ var new_grid = function (width, height) {
         }
         return ret;
     }(width, height);
+
+
+    /** Saving and loading position, color, and tilemap **/
+
+    var copy_obj = function (obj){
+        var ret = {};
+        for(var t in obj){
+            if (obj.hasOwnProperty(t)){
+                ret[t] = obj[t];
+            }
+        }
+        return ret;
+    };
+
+    var save = function (ren) {
+        grid.saved = [copy_obj(grid.tilemap), copy_obj(ren)];
+    };
+
+    grid.load = function(){
+        grid.tilemap = copy_obj(grid.saved[0]);
+        grid.ren = copy_obj(grid.saved[1]);
+    };
 
     grid.saved = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
 
