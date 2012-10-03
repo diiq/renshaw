@@ -2,18 +2,15 @@
 
 move(direction, distance); axis is 'x' or 'y', distance 1 or -1
 map(function(x, y, tile); applies a function to every tile in grid
+realmap applies a function to every mapped tile;
 
-It also defines tile objects, of which I imagine two sorts:
-  mappable tiles, which are mostly identical, accessed through a tilemap, and
-  direct tiles, which are not.
+window_realmap(f, xmin, xmax, ymin, ymax) applies a function to every
+tile in a window -- and x, y, ARE SHRUNK TO THAT DOMAIN; so when the
+real x == xmin, it will be sent to f as 0.
 
-This difference is flagged by tile.hash, teh presence of which signals a mapped tile.
+Tiles provide functions for when they're stepped on.
 
-Tiles provide functions for two actions:
-initialization and
-being stepped on
-
-Initialization lets tiles register for additional callbacks on player action.
+There will also be special objects; this is not eyt implemented.
 
 */
 
