@@ -15,9 +15,9 @@ There will also be special objects; this is not yet implemented.
 */
 
 
-var new_grid = function (width, height) {
+var new_grid = function (url) {
 
-    var grid = {};
+    var grid = {}, width, height;
 
     // Ren is the player character; he changes color, so he's got multiple sources.
     grid.ren = {x:0, y:0, 
@@ -25,7 +25,7 @@ var new_grid = function (width, height) {
                 color : "white"};
 
     var real_tile = function (tile) {
-    // Acceptable architechural artifact.
+    // Acceptable architectural artifact.
         return grid.tilemap[tile.hash];
     };
 
@@ -40,11 +40,11 @@ var new_grid = function (width, height) {
         // and 0 to some height, regardless of xmin and ymin.
         // Consider: is this the place to add content loading?
         var i, j, ret = [];
-        for(i=xmax-1; i>=Math.min(Math.abs(xmin), 0); i--){
+        for(i=xmax-1; i>=Math.max(xmin, 0); i--){
             // this one goes backwards for rendering convenience.
             ret[i-xmin] = [];
-            for(j=Math.min(Math.abs(ymin), 0); j<ymax; j++){
-                ret[i-xmin][j-ymin] = f(i-xmin, j-ymin, grid.tiles[i][j]);
+            for(j=Math.max(ymin, 0); j<ymax; j++){
+                ret[i-xmin][j-ymin] = f(i-xmin, j-ymin, grid.tiles[i][j], i, j);
             }
         }
         return ret;
@@ -52,8 +52,8 @@ var new_grid = function (width, height) {
 
     // This one passes the actual tile
     grid.real_map = function (f, xmin, xmax, ymin, ymax) {
-        return grid.map(function (i, j, tile){
-                            f(i, j, real_tile(tile));
+        return grid.map(function (i, j, tile, ri, rj){
+                            f(i, j, real_tile(tile), ri, rj);
                         }, xmin, xmax, ymin, ymax);
     };
 
@@ -228,9 +228,31 @@ var new_grid = function (width, height) {
 
                    };
 
+    /** Special Tiles **/
+    
+    // These are tiles that are rendered atop the mapped grid; they
+    // are individual. they'll be arranged in blocks of 7*30; at no
+    // time will I need to ask about more than two blocks. 
+
+    grid.map_specials = function (f, xmin, xmax) {
+        var i,
+        loblock = grid.specials[Math.floor(Math.max(xmin, 0) / 22)],
+        hiblock = grid.specials[Math.floor(Math.min(xmax, width) / 22)];
+        if (loblock)
+            for (i=loblock.length-1; i>=0; i--){
+                if (loblock[i].x >= xmin && loblock[i].x < xmax)
+                    f(loblock[i].x-xmin, loblock[i].y, loblock[i]);
+            };
+        if (hiblock && hiblock !== loblock)
+            for (i=hiblock.length-1; i>=0; i--){
+                if (hiblock[i].x >= xmin && hiblock[i].x < xmax)
+                    f(hiblock[i].x-xmin, hiblock[i].y, hiblock[i]);
+            };
+    };
+
     /** Saving and loading a game grid **/
 
-    grid.export = function () {
+    grid.xport = function () {
         var ret = [], rs = [], i, j;
         for(i =0; i<width; i++){
             for(j =0; j<height; j++){
@@ -241,7 +263,7 @@ var new_grid = function (width, height) {
         return ret.join("\n");
     };
 
-    grid.import = function (save) {///gardening here TODO
+    grid.mport = function (save) {///gardening here TODO
         var i, j, cols = save.split("\n");
         width = cols.length;
         grid.tiles = [];
@@ -251,19 +273,8 @@ var new_grid = function (width, height) {
                 grid.tiles[i][j] = {hash:grid.tiles[i][j]};
             }
         } 
+        height = grid.tiles[0].length;
     };
-
-    grid.tiles = function (width, height) {
-        var i, j, ret=[];
-        for(i=0; i<width; i++){
-            ret[i] = [];
-            for(j=0; j<height; j++){
-                ret[i][j] = {hash : "ABCDE"[Math.floor(Math.random()*5)]};
-            }
-        }
-        return ret;
-    }(width, height);
-
 
     /** Saving and loading position, color, and tilemap **/
 
@@ -287,6 +298,31 @@ var new_grid = function (width, height) {
     };
 
     grid.saved = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
+
+    grid.random_fill = function (w, h, set) {
+        // This doesn't really belong here, but it will fill up with random tiles.
+        // Set is a string of hashes: "ABCDE"
+        var i, j, ret=[];
+        width = w; height = h;
+        for(i=0; i<width; i++){
+            ret[i] = [];
+            for(j=0; j<height; j++){
+                ret[i][j] = {hash :  set[Math.floor(Math.random()*set.length)]};
+            }
+        }
+        grid.tiles = ret;
+    };
+
+    grid.add_row = function () {
+        grid.tiles[grid.tiles.length] = $.extend(true, [], grid.tiles[grid.tiles.length-1]); 
+        width++;
+    }
+
+    $.ajax({url:url, dataType:"text", async:false, success:grid.mport});
+    grid.specials = {//3:[{src:"baobad.png", x:66, y:2, offset:[-95, -287]}],
+                     //3:[{src:"baobab.png", x:66, y:2, offset:[-110, -370]}]
+                     3:[{src:"clockwork.png", x:66, y:2, offset:[-50, -235]}],
+};
 
     return grid;
 }
