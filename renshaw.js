@@ -20,7 +20,7 @@ var new_grid = function (url) {
     var grid = {}, width, height;
 
     // Ren is the player character; he changes color, so he's got multiple sources.
-    grid.ren = {x:0, y:0, 
+    grid.ren = {x:0, y:3, 
                 src:{white:"wren.png", green:"gren.png", orang:"oren.png"},
                 color : "white"};
 
@@ -64,24 +64,23 @@ var new_grid = function (url) {
         ren.prev = {x:ren.x, y:ren.y};
         grid.ren[axis] += dist;
         if (ren.x < 0 || ren.x >= width ||
-            ren.y < 0 || ren.y >= height) {
-            no_go(ren);
-        } else {
-            real_tile(grid.tiles[ren.x][ren.y]).step(ren);
+            ren.y < 0 || ren.y >= height ||
+            !real_tile(grid.tiles[ren.x][ren.y]).step(ren)) {
+            ren.x = ren.prev.x; ren.y = ren.prev.y;
+            return false;
         }
+        return true;
     };
 
-    /** These are tile stepping-upon functions. **/
+    /** These are tile stepping-upon functions. They return true if
+     * ren moves, and false if ren may not move there. **/
 
     var no_go = function (ren) {
-        ren.x = ren.prev.x; ren.y = ren.prev.y;
         return false;
     };
 
     var color_step = function (ren) {
         if(ren.color !== this.color){
-            ren.x = ren.prev.x;
-            ren.y = ren.prev.y;
             return false;
         }
         return true;
@@ -91,7 +90,9 @@ var new_grid = function (url) {
         return function (ren) {
             if (color_step.call(this, ren)) {
                 ren.color = color;
+                return true;
             }
+            return false;
         };
     };
 
@@ -106,19 +107,22 @@ var new_grid = function (url) {
                     grid.tilemap[tile] = ids[a[grid.tilemap[tile].id]];
                 }
             }
+            return true;
         };
     };
 
     var slide = function (axis, dist){
         return function(ren){
-            if (color_step.call(this, ren)) {
-                grid.move(axis, dist);
+            if (color_step.call(this, ren) && grid.move(axis, dist)) {
+                    return true;
             }
+            return false;
         };
     };
 
     var minor_save = function (ren) {
         grid.minor_saved = [ren.x, ren.y];
+        return true;
     };
 
     grid.minor_load = function(){
@@ -133,9 +137,7 @@ var new_grid = function (url) {
     };
 
     grid.load = function(){
-        console.log(grid.saved);
-        var s = grid.saved.pop();
-        
+        var s = grid.saved.pop();        
         if(s) {
             grid.tilemap = copy_obj(s[0]);
             grid.ren = copy_obj(s[1]);
@@ -243,6 +245,7 @@ var new_grid = function (url) {
                               ren.x = ren.prev.x; ren.y = ren.prev.y;
                               save();
                               ren.x = t[0], ren.y = t[1];
+                              return true;
                           }},
                     "~": {id:"WATER", src:"water.png", step : no_go}
 
@@ -334,7 +337,7 @@ var new_grid = function (url) {
     $.ajax({url:url, dataType:"text", async:false, success:grid.mport});
     grid.specials = {//3:[{src:"baobad.png", x:66, y:2, offset:[-95, -287]}],
                      //3:[{src:"baobab.png", x:66, y:2, offset:[-110, -370]}]
-                     3:[{src:"clockwork.png", x:66, y:2, offset:[-50, -235]}]
+                     //3:[{src:"clockwork.png", x:66, y:2, offset:[-50, -235]}]
     };
 
     grid.saved = [];

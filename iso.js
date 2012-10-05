@@ -45,7 +45,7 @@ function () {
     max_left = -((width-3)*x_magic[0]),  // offset for the whole grid
     max_top = -((width)*x_magic[1]+(height)*y_magic[1]);
     
-    var grid = new_grid("level1.ren");
+    var grid = new_grid(window.location.hash.slice(1) || "level1.ren");
 
 
     // Dups! Fix yo'sel!    
@@ -65,7 +65,7 @@ function () {
         var $tile = $("<img />");
         $tile.attr("src", "img/"+ren.src[ren.color]);
         $tile.attr("class", "ren");
-        var x = 11, y=ren.y;
+        var x = 9, y=ren.y;
         $tile.css({left: max_left+(y*y_magic[0]+x*x_magic[0])+4+"px",
                    top:  max_top+(y*y_magic[1]+x*x_magic[1])-90 +"px"});
 
@@ -87,8 +87,8 @@ function () {
 
     var render = function (grid) {
         $("#grid").empty();
-        grid.real_map(render_tile, grid.ren.x-width/2, grid.ren.x+width/2);
-        grid.map_specials(render_special, grid.ren.x-width/2, grid.ren.x+width/2);
+        grid.real_map(render_tile, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
+        grid.map_specials(render_special, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
         render_ren(grid.ren);
     };
 
