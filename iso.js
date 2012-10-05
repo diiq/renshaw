@@ -1,5 +1,4 @@
-$(document).ready(
-function () {
+var gotime = function () {
 
 
     /* This file provides a function to render a game board in iso:
@@ -22,8 +21,7 @@ function () {
     y_magic = [-66, 7],
     max_left = -((width-3)*x_magic[0]),  // offset for the whole grid
     max_top = -((width)*x_magic[1]+(height)*y_magic[1]);
-
-
+    
     var grid = new_grid("level1.ren");
 
 
@@ -98,4 +96,27 @@ function () {
 
     render(grid);
 
-});
+};
+
+
+/* This is a dumb place for a preloader. */
+var preload = function () {
+    var j;
+    for(var i =0; i<arguments.length; i++){
+        j = new Image();
+        j.src = arguments[i];
+    }
+};
+
+preload("img/clockwork.png",
+        "img/green.png",
+        "img/gren.png",
+        "img/gwchange.png",
+        "img/gwswap.png",
+        "img/save.png",
+        "img/waterb.png",
+        "img/wgchange.png",
+        "img/white.png",
+        "img/wren.png");
+
+$(document).ready(gotime);

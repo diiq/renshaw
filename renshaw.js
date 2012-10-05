@@ -128,12 +128,21 @@ var new_grid = function (url) {
         }
     };
 
+    var save = function (ren) {
+        grid.saved = [copy_obj(grid.tilemap), copy_obj(ren)];
+    };
+
+    grid.load = function(){
+        grid.tilemap = copy_obj(grid.saved[0]);
+        grid.ren = copy_obj(grid.saved[1]);
+    };
+
     /** The default tile mapping **/
 
     // A through E are white and green tiles. 
     // M through T are arrows.
     // F through L introduce orange; T - X are orange arrows.
-    // $ saves; ~'s water.
+    // $ saves minor, *saves level; ~'s water.
     // These lines are > 80 chars. Cope.
     grid.tilemap = {"A": {id:"white", src:"white.png",  color:"white", step : color_step},
                     "B": {id:"green", src:"green.png",  color:"green", step : color_step},
@@ -223,7 +232,8 @@ var new_grid = function (url) {
                                "GSD":"GSR",
                                "OSD":"OSR"})},
 
-                    "$": {id:"SAVE", src:"save.png", step : minor_save},
+                    "$": {id:"MSAVE", src:"msave.png", step : minor_save},
+                    "*": {id:"SAVE", src:"save.png", step : save},
                     "~": {id:"WATER", src:"water.png", step : no_go}
 
                    };
@@ -288,14 +298,6 @@ var new_grid = function (url) {
         return ret;
     };
 
-    var save = function (ren) {
-        grid.saved = [copy_obj(grid.tilemap), copy_obj(ren)];
-    };
-
-    grid.load = function(){
-        grid.tilemap = copy_obj(grid.saved[0]);
-        grid.ren = copy_obj(grid.saved[1]);
-    };
 
     grid.saved = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
 
@@ -316,13 +318,13 @@ var new_grid = function (url) {
     grid.add_row = function () {
         grid.tiles[grid.tiles.length] = $.extend(true, [], grid.tiles[grid.tiles.length-1]); 
         width++;
-    }
+    };
 
     $.ajax({url:url, dataType:"text", async:false, success:grid.mport});
     grid.specials = {//3:[{src:"baobad.png", x:66, y:2, offset:[-95, -287]}],
                      //3:[{src:"baobab.png", x:66, y:2, offset:[-110, -370]}]
                      3:[{src:"clockwork.png", x:66, y:2, offset:[-50, -235]}],
 };
-
+        
     return grid;
 }
