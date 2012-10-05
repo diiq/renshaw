@@ -14,17 +14,27 @@ function () {
         }
     };
     
-    preload("img/clockwork.png",
-            "img/green.png",
+    preload("img/baobab.png",
+            "img/clockwork.png",
+            "img/gleft.png",
             "img/gren.png",
-            "img/gwchange.png",
+            "img/gupup.png",
             "img/gwswap.png",
-            "img/save.png",
-            "img/waterb.png",
             "img/water.png",
             "img/wgchange.png",
+            "img/wleft.png",
+            "img/wrigh.png",
+            "img/baobad.png",
+            "img/gdown.png",
+            "img/green.png",
+            "img/grigh.png",
+            "img/gwchange.png",
+            "img/save.png",
+            "img/waterb.png",
+            "img/wdown.png",
             "img/white.png",
-            "img/wren.png");
+            "img/wren.png",
+            "img/wupup.png");
 
 
     /* This file provides a function to render a game board in iso:
@@ -64,7 +74,7 @@ function () {
 
     var render_ren = function (ren){
         // Some duplication here; gardening to do.
-        var $tile = preloaded["img/"+ren.src[ren.color]];
+        var $tile = preloaded["img/"+ren.src[ren.color]].clone();
         $tile.attr("class", "ren");
         var x = 9, y=ren.y;
         $tile.css({left: max_left+(y*y_magic[0]+x*x_magic[0])+4+"px",
