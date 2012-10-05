@@ -129,12 +129,17 @@ var new_grid = function (url) {
     };
 
     var save = function (ren) {
-        grid.saved = [copy_obj(grid.tilemap), copy_obj(ren)];
+        grid.saved.push([copy_obj(grid.tilemap), copy_obj(grid.ren)]);
     };
 
     grid.load = function(){
-        grid.tilemap = copy_obj(grid.saved[0]);
-        grid.ren = copy_obj(grid.saved[1]);
+        console.log(grid.saved);
+        var s = grid.saved.pop();
+        
+        if(s) {
+            grid.tilemap = copy_obj(s[0]);
+            grid.ren = copy_obj(s[1]);
+        }
     };
 
     /** The default tile mapping **/
@@ -233,7 +238,12 @@ var new_grid = function (url) {
                                "OSD":"OSR"})},
 
                     "$": {id:"MSAVE", src:"msave.png", step : minor_save},
-                    "*": {id:"SAVE", src:"save.png", step : save},
+                    "*": {id:"SAVE", src:"save.png", step : function (ren) {
+                              var t = [ren.x, ren.y];
+                              ren.x = ren.prev.x; ren.y = ren.prev.y;
+                              save();
+                              ren.x = t[0], ren.y = t[1];
+                          }},
                     "~": {id:"WATER", src:"water.png", step : no_go}
 
                    };
@@ -298,9 +308,6 @@ var new_grid = function (url) {
         return ret;
     };
 
-
-    grid.saved = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
-
     grid.random_fill = function (w, h, set) {
         // This doesn't really belong here, but it will fill up with random tiles.
         // Set is a string of hashes: "ABCDE"
@@ -320,11 +327,18 @@ var new_grid = function (url) {
         width++;
     };
 
+
+
+    /** Load 'er up! **/
+
     $.ajax({url:url, dataType:"text", async:false, success:grid.mport});
     grid.specials = {//3:[{src:"baobad.png", x:66, y:2, offset:[-95, -287]}],
                      //3:[{src:"baobab.png", x:66, y:2, offset:[-110, -370]}]
-                     3:[{src:"clockwork.png", x:66, y:2, offset:[-50, -235]}],
-};
+                     3:[{src:"clockwork.png", x:66, y:2, offset:[-50, -235]}]
+    };
+
+    grid.saved = [];
+    save();
         
     return grid;
 }

@@ -80,7 +80,7 @@ var gotime = function () {
                   39:move("y", -1),   // right
                   40:move("x", -1),   // down
                   82:grid.load,       // r
-                  32: grid.minor_load // space
+                  32:grid.minor_load  // space
                  };
     $("body").keydown(function (e) {
                           if (keymap[e.which]) {
