@@ -1,13 +1,15 @@
 $(document).ready(
 function () {
+    var preloaded = {};
 
     var preload = function () {
         var j, k;
         for(var i =0; i<arguments.length; i++){
-        j = new Image();
+            j = new Image();
             j.src = arguments[i];
             k = $("<img>");
             k.attr("src", arguments[i]);
+            preloaded[arguments[i]] = k.clone();
             $("body").append(k.hide());
         }
     };
@@ -19,6 +21,7 @@ function () {
             "img/gwswap.png",
             "img/save.png",
             "img/waterb.png",
+            "img/water.png",
             "img/wgchange.png",
             "img/white.png",
             "img/wren.png");
@@ -50,8 +53,7 @@ function () {
 
     // Dups! Fix yo'sel!    
     var render_tile = function (x, y, tile, rx, ry){
-        var $tile = $("<img />");
-        $tile.attr("src", "img/"+tile.src);
+        var $tile = preloaded["img/"+tile.src].clone();        
         $tile.attr("class", "tile");
         $tile.css({left: max_left+(y*y_magic[0]+x*x_magic[0])+"px",
                    top:  max_top+(y*y_magic[1]+x*x_magic[1]) +"px"});
@@ -62,8 +64,7 @@ function () {
 
     var render_ren = function (ren){
         // Some duplication here; gardening to do.
-        var $tile = $("<img />");
-        $tile.attr("src", "img/"+ren.src[ren.color]);
+        var $tile = preloaded["img/"+ren.src[ren.color]];
         $tile.attr("class", "ren");
         var x = 9, y=ren.y;
         $tile.css({left: max_left+(y*y_magic[0]+x*x_magic[0])+4+"px",
