@@ -93,10 +93,11 @@ function () {
                          render(grid);
                      });
 
-    $("#clear").click(function(){
-                          grid.map(function(x, y, t){t.hash = "A";});
+    $("#fill").click(function(){
+                          grid.random_fill(50, 7, $("#output").val());
                           render(grid);
                       });
+
 
     render(grid);
 

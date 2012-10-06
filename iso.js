@@ -58,8 +58,14 @@ function () {
     y_magic = [-66, 7],
     max_left = -((width-3)*x_magic[0]),  // offset for the whole grid
     max_top = -((width)*x_magic[1]+(height)*y_magic[1]);
-    
-    var grid = new_grid(window.location.hash.slice(1) || "level1.ren");
+
+    var ding = function () {
+        $("#ding").get(0).play();
+        $("#rewards").append("<div class='reward'></div>");
+    };
+
+    var grid = new_grid(window.location.hash.slice(1) || "level1.ren", 
+                       {ding:ding});
 
 
     // Dups! Fix yo'sel!    
@@ -97,19 +103,11 @@ function () {
         $("#grid").append($tile);
     };
 
-    var render_rewards = function (){
-        $("#rewards").empty();
-        for (i in grid.rewards) {
-            $("#rewards").append("<div class='reward'>"+i+"</div>");
-        }
-    };
-
     var render = function (grid) {
         $("#grid").empty();
         grid.real_map(render_tile, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
         grid.map_specials(render_special, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
         render_ren(grid.ren);
-        render_rewards();
     };
 
 

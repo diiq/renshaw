@@ -15,7 +15,7 @@ There will also be special objects; this is not yet implemented.
 */
 
 
-var new_grid = function (url) {
+var new_grid = function (url, callbacks) {
 
     var grid = {}, width, height;
 
@@ -61,12 +61,13 @@ var new_grid = function (url) {
     grid.move = function (axis, dist) {
         // Move ren, call tile stepped on.
         var ren = grid.ren;
-        ren.prev = {x:ren.x, y:ren.y};
+        var prev = {x:ren.x, y:ren.y};
+        ren.prev = prev;
         grid.ren[axis] += dist;
         if (ren.x < 0 || ren.x >= width ||
             ren.y < 0 || ren.y >= height ||
             !real_tile(grid.tiles[ren.x][ren.y]).step(ren)) {
-            ren.x = ren.prev.x; ren.y = ren.prev.y;
+            ren.x = prev.x; ren.y = prev.y;
             return false;
         }
         return true;
@@ -245,9 +246,8 @@ var new_grid = function (url) {
                               ren.x = ren.prev.x; ren.y = ren.prev.y;
                               save();
                               ren.x = t[0], ren.y = t[1];
-                              grid.rewards[ren.x] = true;
-                              // This doesn't belong here.
-                              $("#ding").get(0).play();
+                              if (callbacks.ding)
+                                  callbacks.ding();
                               grid.tiles[ren.x][ren.y].hash = "_";
                               return true;
                           }},
@@ -353,9 +353,5 @@ var new_grid = function (url) {
     };
 
     grid.saved = [];
-    save();
-    
-    grid.rewards = [];
-        
     return grid;
 }
