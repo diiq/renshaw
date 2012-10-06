@@ -57,9 +57,11 @@ var new_grid = function (url, callbacks) {
                         }, xmin, xmax, ymin, ymax);
     };
 
+    var count = 0;
 
     grid.move = function (axis, dist) {
         // Move ren, call tile stepped on.
+        count++;
         var ren = grid.ren;
         var prev = {x:ren.x, y:ren.y};
         ren.prev = prev;
@@ -143,6 +145,18 @@ var new_grid = function (url, callbacks) {
             grid.tilemap = copy_obj(s[0]);
             grid.ren = copy_obj(s[1]);
         }
+    };
+
+    var dingsave = function (ren) {
+        var t = [ren.x, ren.y];
+        ren.x = ren.prev.x; ren.y = ren.prev.y;
+        save();
+        ren.x = t[0], ren.y = t[1];
+        if (callbacks.ding)
+            callbacks.ding(count);
+        count = 0;
+        grid.tiles[ren.x][ren.y].hash = "_";
+        return true;
     };
 
     /** The default tile mapping **/
@@ -241,16 +255,7 @@ var new_grid = function (url, callbacks) {
                                "OSD":"OSR"})},
 
                     "$": {id:"MSAVE", src:"msave.png", step : minor_save},
-                    "*": {id:"SAVE", src:"save.png", step : function (ren) {
-                              var t = [ren.x, ren.y];
-                              ren.x = ren.prev.x; ren.y = ren.prev.y;
-                              save();
-                              ren.x = t[0], ren.y = t[1];
-                              if (callbacks.ding)
-                                  callbacks.ding();
-                              grid.tiles[ren.x][ren.y].hash = "_";
-                              return true;
-                          }},
+                    "*": {id:"SAVE", src:"save.png", step : dingsave},
                     "_": {id:"SAVED", src:"saved.png", step : function (ren) {
                               var t = [ren.x, ren.y];
                               ren.x = ren.prev.x; ren.y = ren.prev.y;

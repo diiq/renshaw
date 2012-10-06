@@ -74,12 +74,16 @@ html, body {
     position:absolute;
     top:25px;
     left:25px;
+    width:200px;
 }
 
 .reward {
-    width:25px;
-    height:25px;
-    color:#eedd00;
+    width:40px;
+    height:40px;
+    color:#fff;
+    text-align:center;
+    padding:5px;
+    font:30px sans bold;
     background-color:#ffee00;
     border:1px solid #eedd00;
     margin:10px;

@@ -59,9 +59,9 @@ function () {
     max_left = -((width-3)*x_magic[0]),  // offset for the whole grid
     max_top = -((width)*x_magic[1]+(height)*y_magic[1]);
 
-    var ding = function () {
+    var ding = function (i) {
         $("#ding").get(0).play();
-        $("#rewards").append("<div class='reward'></div>");
+        $("#rewards").append("<div class='reward'>"+i+"</div>");
     };
 
     var grid = new_grid(window.location.hash.slice(1) || "level1.ren", 
