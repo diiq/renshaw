@@ -136,14 +136,21 @@ var new_grid = function (url, callbacks) {
     };
 
     var save = function (ren) {
-        grid.saved.push([copy_obj(grid.tilemap), copy_obj(grid.ren)]);
+        var s = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
+        grid.saved.push(s);
+        return s;
     };
 
-    grid.load = function(){
-        var s = grid.saved.pop();        
-        if(s) {
-            grid.tilemap = copy_obj(s[0]);
-            grid.ren = copy_obj(s[1]);
+    grid.load = function(tilemap, ren){
+        if (tilemap && ren) {
+            grid.tilemap = copy_obj(tilemap);
+            grid.ren = copy_obj(ren);
+        } else {
+            var s = grid.saved.pop();        
+            if(s) {
+                grid.tilemap = copy_obj(s[0]);
+                grid.ren = copy_obj(s[1]);
+            }
         }
     };
 
@@ -315,7 +322,7 @@ var new_grid = function (url, callbacks) {
         } 
         height = grid.tiles[0].length;
     };
-
+m
     /** Saving and loading position, color, and tilemap **/
 
     var copy_obj = function (obj){
