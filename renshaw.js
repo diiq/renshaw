@@ -245,8 +245,20 @@ var new_grid = function (url) {
                               ren.x = ren.prev.x; ren.y = ren.prev.y;
                               save();
                               ren.x = t[0], ren.y = t[1];
+                              grid.rewards[ren.x] = true;
+                              // This doesn't belong here.
+                              $("#ding").get(0).play();
+                              grid.tiles[ren.x][ren.y].hash = "_";
                               return true;
                           }},
+                    "_": {id:"SAVED", src:"saved.png", step : function (ren) {
+                              var t = [ren.x, ren.y];
+                              ren.x = ren.prev.x; ren.y = ren.prev.y;
+                              save();
+                              ren.x = t[0], ren.y = t[1];
+                              return true;
+                          }},
+
                     "~": {id:"WATER", src:"water.png", step : no_go}
 
                    };
@@ -342,6 +354,8 @@ var new_grid = function (url) {
 
     grid.saved = [];
     save();
+    
+    grid.rewards = [];
         
     return grid;
 }

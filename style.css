@@ -69,3 +69,18 @@ html, body {
     width:50%;
     height:100px;
 }
+
+#rewards {
+    position:absolute;
+    top:25px;
+    left:25px;
+}
+
+.reward {
+    width:25px;
+    height:25px;
+    color:#eedd00;
+    background-color:#ffee00;
+    border:1px solid #eedd00;
+    margin:10px;
+}

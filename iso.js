@@ -30,6 +30,7 @@ function () {
             "img/grigh.png",
             "img/gwchange.png",
             "img/save.png",
+            "img/saved.png",
             "img/waterb.png",
             "img/wdown.png",
             "img/white.png",
@@ -96,11 +97,19 @@ function () {
         $("#grid").append($tile);
     };
 
+    var render_rewards = function (){
+        $("#rewards").empty();
+        for (i in grid.rewards) {
+            $("#rewards").append("<div class='reward'>"+i+"</div>");
+        }
+    };
+
     var render = function (grid) {
         $("#grid").empty();
         grid.real_map(render_tile, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
         grid.map_specials(render_special, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
         render_ren(grid.ren);
+        render_rewards();
     };
 
 
