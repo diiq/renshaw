@@ -331,6 +331,7 @@ var new_grid = function (url, callbacks) {
     grid.random_fill = function (w, h, set) {
         // This doesn't really belong here, but it will fill up with random tiles.
         // Set is a string of hashes: "ABCDE"
+       // console.log(set);
         var i, j, ret=[];
         width = w; height = h;
         for(i=0; i<width; i++){

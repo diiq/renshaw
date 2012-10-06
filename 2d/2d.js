@@ -94,7 +94,7 @@ function () {
                      });
 
     $("#fill").click(function(){
-                          grid.random_fill(50, 7, $("#output").val());
+                          grid.random_fill($("#width").val(), $("#height").val(), $("#filler").val());
                           render(grid);
                       });
 

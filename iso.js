@@ -16,6 +16,8 @@ function () {
     
     preload("img/baobab.png",
             "img/clockwork.png",
+            "img/clock.png",
+            "img/cclock.png",
             "img/gleft.png",
             "img/gren.png",
             "img/gupup.png",
