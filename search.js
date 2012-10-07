@@ -55,13 +55,13 @@ var search = function (grid, maxdepth) {
 
     var deeper = function (tilemap, ren, depth) {
         depth = depth || 0;
-        if (ko(tilemap, ren)) return [[-1, -1]];
+        if (ko(tilemap, ren)) return [[-1, -1, tilemap, ren]];
 
         var moves = [["x", 1],
                      ["x", -1],
                      ["y", 1],
                      ["y", -1]];
-        var s, mv, current = [[ren.x, ren.y]];
+        var s, mv, current = [[ren.x, ren.y, tilemap, ren]];
         if (depth < maxdepth) {
             for (mv in moves) {
                 s = step(tilemap, ren, moves[mv], depth);
@@ -75,6 +75,7 @@ var search = function (grid, maxdepth) {
     
     var s = [grid.tilemap, grid.ren];
     var ret = deeper(grid.tilemap, grid.ren, 0);
-    grid.load(s[0], s[1]);
+    grid.saved = [s];
+    grid.load(ret[0][2], ret[0][3]);
     return ret;
 };

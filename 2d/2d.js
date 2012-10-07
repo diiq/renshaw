@@ -9,7 +9,7 @@ function () {
     var 
     twidth = 25,
     theight = 25,
-    grid = new_grid("../level1.ren"),
+    grid = new_grid("../level1.ren", {ding:function(){$("#ding").get(0).play();}}),
     current = "A";
 
     var pallete = function () {
@@ -103,10 +103,22 @@ function () {
 
     $("#search").click(function () {
                            var ret = search(grid, 23); 
-                           grid.tiles[ret[0][0]][ret[0][1]] = {hash:"*"};
+                           grid.tiles[ret[0][0]+1][ret[0][1]] = {hash:"*"};
                            render(grid);
                            console.log(ret, ret.length-1);
-                       });     
+                       });
+    $("#research").click(function () {
+                             var max = -1;
+                             var ret = search(grid, 23); 
+                             while(ret[0][0] > max) {
+                                 max = ret[0][0];
+                                 grid.tiles[ret[0][0]+1][ret[0][1]] = {hash:"*"};
+                                 ret = search(grid, 23); 
+                             }
+                             render(grid);
+
+                       });
+
     render(grid);
 
 });
