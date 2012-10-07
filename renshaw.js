@@ -140,6 +140,7 @@ var new_grid = function (url, callbacks) {
         grid.saved.push(s);
         return s;
     };
+    grid.save = save;
 
     grid.load = function(tilemap, ren){
         if (tilemap && ren) {
@@ -322,7 +323,7 @@ var new_grid = function (url, callbacks) {
         } 
         height = grid.tiles[0].length;
     };
-m
+
     /** Saving and loading position, color, and tilemap **/
 
     var copy_obj = function (obj){

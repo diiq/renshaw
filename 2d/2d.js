@@ -94,11 +94,19 @@ function () {
                      });
 
     $("#fill").click(function(){
-                          grid.random_fill($("#width").val(), $("#height").val(), $("#filler").val());
-                          render(grid);
+                         grid.random_fill($("#width").val(), 
+                                          $("#height").val(), 
+                                          $("#filler").val());
+                         render(grid);
                       });
 
 
+    $("#search").click(function () {
+                           var ret = search(grid, 23); 
+                           grid.tiles[ret[0][0]][ret[0][1]] = {hash:"*"};
+                           render(grid);
+                           console.log(ret, ret.length-1);
+                       });     
     render(grid);
 
 });
