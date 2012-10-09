@@ -74,24 +74,26 @@ function () {
     /** User input: **/
 
     var move = function(a, d){
-        return function () {grid.move(a, d);};
+        return function () {grid.move(a, d);
+                            render(grid);
+                           };
     };
     var keymap = {37:move("y",  1),   // left
                   38:move("x",  1),   // up
                   39:move("y", -1),   // right
                   40:move("x", -1),   // down
-                  82:grid.load,       // r
-//                  32:story_next       // space
+                  82:function(){grid.load();render(grid);},       // r
                  };
     $("body").keydown(function (e) {
                           if (keymap[e.which]) {
                               keymap[e.which]();
-                              render(grid);
                           }
                       });
 
-    render(grid);
-
+    $(window).load(function(){
+                       render(grid);
+                   });
+    
 });
 
 
@@ -105,7 +107,8 @@ var preload = function () {
         preloaded[arguments[i]] = k.clone();
         $("body").append(k.hide());
     }
-}("img/baobab.png", "img/clockwork.png", "img/clock.png", "img/cclock.png", 
+}("img/come.svg", 
+  "img/baobab.png", "img/clockwork.png", "img/clock.png", "img/cclock.png", 
   "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
   "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 
   "img/baobad.png", "img/gdown.png", "img/green.png", "img/grigh.png", 

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="469.86368"
+   height="384.01779"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="come.svg">
+  <defs
+     id="defs4">
+    <inkscape:path-effect
+       effect="gears"
+       id="path-effect3819"
+       is_visible="true"
+       teeth="11"
+       phi="4.7" />
+    <inkscape:path-effect
+       effect="vonkoch"
+       id="path-effect3795"
+       is_visible="true"
+       ref_path="m 281.3125,327.09375 0,0"
+       generator="m 114.97867,711.10702 156.62265,0 m 156.62265,0 156.62264,0"
+       similar_only="false"
+       nbgenerations="0"
+       drawall="true"
+       maxComplexity="1000" />
+    <inkscape:path-effect
+       effect="curvestitching"
+       id="path-effect3793"
+       is_visible="true"
+       count="5"
+       startpoint_edge_variation="0;1"
+       startpoint_spacing_variation="0;1"
+       endpoint_edge_variation="0;1"
+       endpoint_spacing_variation="0;1"
+       strokepath="m 114.97867,519.08738 469.86794,0"
+       prop_scale="1"
+       scale_y_rel="false" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect3766"
+       is_visible="true" />
+    <inkscape:path-effect
+       effect="sketch"
+       id="path-effect3764"
+       is_visible="true"
+       nbiter_approxstrokes="4"
+       strokelength="100"
+       strokelength_rdm="0.3;1"
+       strokeoverlap="0.3"
+       strokeoverlap_rdm="0.3;1"
+       ends_tolerance="0.1;1"
+       parallel_offset="5;1"
+       tremble_size="5;1"
+       tremble_frequency="1"
+       nbtangents="5"
+       tgt_places_rdmness="1;1"
+       tgtscale="10"
+       tgtlength="100"
+       tgtlength_rdm="0.3;1" />
+    <inkscape:path-effect
+       effect="knot"
+       id="path-effect3762"
+       is_visible="true"
+       interruption_width="3"
+       prop_to_stroke_width="true"
+       add_stroke_width="true"
+       add_other_stroke_width="true"
+       switcher_size="15"
+       crossing_points_vector="" />
+    <inkscape:path-effect
+       effect="rough_hatches"
+       id="path-effect3760"
+       is_visible="true"
+       direction="349.91264,514.08738 , 117.46699,0"
+       dist_rdm="75;1"
+       growth="0"
+       do_bend="true"
+       bender="349.91264,519.08738 , 5,0"
+       bottom_edge_variation="38.403928;1"
+       top_edge_variation="38.403928;1"
+       bottom_tgt_variation="0;1"
+       top_tgt_variation="0;1"
+       scale_bf="1"
+       scale_bb="1"
+       scale_tf="1"
+       scale_tb="1"
+       top_smth_variation="0;1"
+       bottom_smth_variation="0;1"
+       fat_output="true"
+       stroke_width_top="1"
+       stroke_width_bottom="1"
+       front_thickness="1"
+       back_thickness="0.25" />
+    <inkscape:path-effect
+       effect="construct_grid"
+       id="path-effect3758"
+       is_visible="true"
+       nr_x="5"
+       nr_y="5" />
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective10" />
+    <inkscape:perspective
+       id="perspective3734"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3776"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect3766-4"
+       is_visible="true" />
+    <inkscape:perspective
+       id="perspective3843"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4154"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4185"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="197.07469"
+     inkscape:cy="63.11235"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1364"
+     inkscape:window-height="766"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(600.64612,405.361)">
+    <path
+       style="color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#f2e584;stroke-width:0;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m -564.3651,-307.17288 c 12.27948,-6.09288 38.21595,4.12414 43.5425,-9.05157 -11.73164,-5.17676 -27.30891,-28.04171 -10.66247,-33.1583 6.06161,21.99704 -4.4089,45.35684 -3.38437,68.05177 -4.01616,64.45803 1.3328,128.98448 6.63344,193.203723 10.96251,17.5874 14.24008,41.86368 5.02654,60.83208 -21.66474,20.2062501 -40.49905,-15.8779 -36.39733,-36.11422 0.27223,-28.08233 4.71499,-56.203113 0.20558,-84.174653 -2.966,-60.92372 -5.63925,-121.98642 -4.41494,-182.9658 3.78909,-32.28133 53.92317,-49.07859 71.84383,-19.04278 12.22021,22.70848 -8.26737,48.1228 -29.53925,55.96429 -21.86111,8.44888 -48.1165,14.92143 -70.4849,5.05342 -26.99077,-19.46534 16.82696,-49.51736 27.63137,-18.59796 z"
+       id="path2858-7"
+       inkscape:export-filename="/home/diiq/code/renshaw/img/come.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#f2e584;stroke-width:0;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m -484.81252,-281.00267 c 51.7523,11.66699 105.6429,-17.81098 156.18288,3.44377 18.50784,21.95972 5.13003,51.20073 -3.10155,74.44821 -16.21371,55.45641 -17.86521,116.580253 -49.67323,166.631263 -11.18771,17.07336 -44.9071,10.95898 -47.55832,-11.12117 -6.95387,-32.96954 1.59163,-66.565113 1.53685,-99.801253 4.64979,-67.46786 13.27422,-138.44436 52.28707,-195.73517 28.26712,-27.7372 85.8434,-13.93515 96.5992,24.71887 9.89607,25.44571 -27.50356,39.77636 -40.73212,17.89171 -11.50597,-12.05622 -36.34497,-50.73383 -46.37364,-18.17518 -28.53038,67.16175 -36.35924,141.6503 -32.08641,213.9099 1.7812,20.491353 12.8099,43.470103 1.60161,62.823393 -15.99773,14.76287 1.05508,-18.54686 1.59836,-26.59713 14.62362,-45.950863 25.348,-92.981273 36.81803,-139.753543 5.19369,-20.35447 1.19648,-48.84708 -22.87343,-54.48579 -32.36087,-2.80754 -64.92239,5.28039 -97.27578,7.67029 -20.56594,7.69594 -53.75495,-1.80084 -40.08617,-29.32703 7.43735,-16.60937 28.12685,-12.11573 33.13665,3.45886 z"
+       id="path2898-8"
+       inkscape:export-filename="/home/diiq/code/renshaw/img/come.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#f2e584;stroke-width:0;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m -465.09316,-336.57301 c 9.49241,-22.20865 9.81108,-48.94524 25.79834,-67.98188 28.44662,-7.17296 25.34222,35.41748 18.02668,52.73157 -1.84016,19.53487 -26.29181,44.42054 -40.88493,19.42305 l -1.46324,-1.99402 -1.47685,-2.17872 z"
+       id="path2900-5"
+       inkscape:export-filename="/home/diiq/code/renshaw/img/come.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#f2e584;stroke-width:0;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m -224.55173,-273.48228 c 26.98794,-1.57685 53.27076,-18.89438 80.48909,-10.92081 20.88569,11.18133 12.32479,39.46589 6.49168,57.34595 -6.79949,21.83995 -26.9411,45.03395 -52.19562,38.40732 -54.22075,-22.80551 -117.72483,-22.00648 -171.29517,2.32267 -25.17724,9.92744 -28.58273,-35.80162 -1.73573,-23.97508 20.81669,2.07275 42.10631,-4.36767 62.82248,-7.4667 42.74253,-8.24681 89.60256,-16.86394 130.53986,3.09737 22.69095,13.98378 -24.36287,32.32759 -9.19112,8.23463 16.74668,-13.94063 19.88012,-45.44675 -5.02358,-52.36083 -22.51937,-11.57887 -45.55343,5.2554 -64.15316,10.24547 -32.54124,-13.25104 9.15769,-60.36669 23.25127,-24.92999 l 0,0 z"
+       id="path2908-7"
+       inkscape:export-filename="/home/diiq/code/renshaw/img/come.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+  </g>
+</svg>
