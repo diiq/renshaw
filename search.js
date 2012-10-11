@@ -6,12 +6,82 @@ reachable --- but that will mean recognizing ko, and other hard
 things.
 
 It would also be nice to have it place a *, and repeat. This will be
-easy. */
+easy. 
 
 
-var search = function (grid, maxdepth) {
-    maxdepth = maxdepth || 23;
-    
+
+Termination is a predicate over tilemap, ren, and depth. It returns
+true when a positive result is reached. 
+
+A state is an object: 
+ .map
+ .ren
+ .depth
+
+can I win MUST run quickly, but it's function is non-essential; so it
+assumes you can win if it takes more than 16ms to decide. That gives
+me plenty of time left over for resposive rendering, even when I'm
+rendering like an idiot (which I am).
+
+*/
+
+var wander = function (grid, depth) {
+    depth = depth || 23;
+    var term = function (s) {
+        if (s.depth > depth) return true;
+        return false;
+    };
+    var cmp = function (s1, s2) {
+        if (s1.ren.x < s2.ren.x) return true;
+        return false;
+    };
+    return search(grid, term, cmp);
+};
+
+var can_i_win = function (grid, depth) {
+    depth = depth || 50;
+    var term = function (s) {
+        if (s.depth > depth) return true;
+        return false;
+    };
+    var cmp = function (s1, s2) {
+        return false;
+    };
+    var d = new Date();
+    var time = d.getTime();
+    var esc = function(s){
+        var d = new Date();
+        if (d.getTime() - 16 > time) {
+            console.log("hoo");
+            return true;
+        }
+        if (grid.tiles[s.ren.x][s.ren.y].hash === "_"){
+            console.log("here", s);
+            grid.tiles[s.ren.x][s.ren.y].hash = "$";
+            return true;
+        }
+        return false;
+    };
+
+    var ret;
+
+    try {
+        search(grid, term, cmp, esc);
+        ret = false;
+
+    } catch (x) {
+        if(x.m === "Escape")
+            ret = [x.s];
+        else throw x;
+    }
+
+    return ret;
+};
+
+var search = function (grid, termination, score_cmp, escape) {
+    escape = escape || function () {
+        return false;
+    };
 
     var i, j, memo = [];
     for (i = 0; i<grid.tiles.length; i++){
@@ -33,7 +103,6 @@ var search = function (grid, maxdepth) {
         if (m.length !== 0){
             for (var i=0; i<m.length; i++){
                 if (match(tilemap, m[i][0]) && ren.color == m[i][1].color){
-//                    console.log("trimmed", ren.x, ren.y);
                     return true;
                 }
             }
@@ -42,40 +111,42 @@ var search = function (grid, maxdepth) {
         return false;
     };
 
-    // the biggest trick will be keeping track of the tilemap and ren.
-    // I;ll need obj_copy for this? or no, I can steal a save.
-    var step = function (tilemap, ren, mv, depth) {
-        grid.load(tilemap, ren);
+    var step = function (s, mv) {
+        grid.load(s.tilemap, s.ren);
         if (grid.move.apply({}, mv)){
-            var s = grid.save();
-            return deeper(s[0], s[1], depth+1);
+            var ps = grid.save();
+            return deeper({tilemap:ps[0], ren:ps[1], depth:s.depth+1});
         };
         return false;
     };
 
-    var deeper = function (tilemap, ren, depth) {
-        depth = depth || 0;
-        if (ko(tilemap, ren)) return [[-1, -1, tilemap, ren]];
-
+    var deeper = function (s) {
         var moves = [["x", 1],
                      ["x", -1],
                      ["y", 1],
                      ["y", -1]];
-        var s, mv, current = [[ren.x, ren.y, tilemap, ren]];
-        if (depth < maxdepth) {
+        var ss, mv, current = [s];
+        if (ko(s.tilemap, s.ren)) return false; //been here before
+
+        if (escape(s)){
+            throw {m:"Escape", s:s};
+        }
+
+        if (!termination(s)) {
             for (mv in moves) {
-                s = step(tilemap, ren, moves[mv], depth);
-                if (s && s[0][0] > current[0][0]) {
-                    current = s.concat([moves[mv]]);
+                ss = step(s, moves[mv]);
+                if (ss && score_cmp(current[0], ss[0])) {
+                    current = ss.concat([moves[mv]]);
                 }
             }
         }
         return current;
     };
     
-    var s = [grid.tilemap, grid.ren];
-    var ret = deeper(grid.tilemap, grid.ren, 0);
-    grid.saved = [s];
-    grid.load(ret[0][2], ret[0][3]);
+    var s0 = {tilemap:grid.tilemap, ren:grid.ren, depth:0};
+    var ret = deeper(s0);  
+    
+    // TODO preserve grid state before running
+    grid.saved = [[s0.tilemap, s0.ren]];
     return ret;
 };

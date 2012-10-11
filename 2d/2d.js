@@ -80,8 +80,10 @@ function () {
                   32: grid.minor_load// space
                  };
     $("body").keydown(function (e) {
-                          if (keymap[e.which]) keymap[e.which]();
-                          render(grid);
+                          if (keymap[e.which]) {
+                              keymap[e.which]();
+                              render(grid);
+                          }
                       });
 
     $("#export").click(function(){
@@ -102,11 +104,18 @@ function () {
 
 
     $("#search").click(function () {
-                           var ret = search(grid, 23); 
-                           grid.tiles[ret[0][0]+1][ret[0][1]] = {hash:"*"};
+                           var ret = wander(grid, 1200); 
+//                           grid.tiles[ret[0].ren.x+1][ret[0].ren.y] = {hash:"*"};
                            render(grid);
-                           console.log(ret, ret.length-1);
+//                           console.log(ret, ret.length-1);
                        });
+
+    $("#caniwin").click(function () {
+                           var ret = can_i_win(grid, 1200); 
+//                           grid.tiles[ret[0].ren.x+1][ret[0].ren.y] = {hash:"*"};
+                            console.log("RETER", ret);
+                       });
+
     $("#research").click(function () {
                              var max = -1;
                              var ret = search(grid, 23); 
