@@ -34,8 +34,8 @@ function () {
 
 
     /** Rendering **/
-
     // Dups! Fix yo'sel!    
+    var buffer; // todo, get out of this scope
     var render_obj = function (x, y, ol, ot, cls, src) {
         if(!preloaded["img/"+src]) console.log(src);
         var $obj = preloaded["img/"+src].clone();
@@ -43,7 +43,7 @@ function () {
         $obj.attr("class", cls);
         $obj.css({left: max_left+(y*y_magic[0]+x*x_magic[0])+ol+"px",
                    top:  max_top+(y*y_magic[1]+x*x_magic[1])+ot+"px"});
-        $("#grid").append($obj);
+        buffer.append($obj);
         return $obj;
     };
 
@@ -52,6 +52,7 @@ function () {
     };
 
     var render_ren = function (ren){
+        $(".ren").remove();
         render_obj(10, ren.y, 4, -90, "ren", ren.src[ren.color]);
         // Shift bg to match
         $("#mask").css("background-position",  -ren.x*x_magic[0]+"px " + 
@@ -65,11 +66,22 @@ function () {
         render_obj(x, y, tile.offset[0], tile.offset[1], "tile", tile.src);
     };
 
+    var old_x;
     var render = function (grid) {
-        $("#grid").empty();
-        grid.real_map(render_tile, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
-        grid.map_specials(render_special, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
+        buffer = $("<div id='bgrid'></div>");
+
+        grid.transition();
+
+        if (grid.ren.x !== old_x) {
+            grid.real_map(render_tile, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
+            grid.map_specials(render_special, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
+        }
         render_ren(grid.ren);
+        $("#grid").empty();
+        $("#grid").append(buffer.contents());
+
+
+
     };
 
 
@@ -106,7 +118,6 @@ function () {
 
     var move = function(a, d){
         return function () {grid.move(a, d);
-                            grid.transition();
                             render(grid);
                             if (!can_i_win(grid)) {
                                 alert("Bummer. You now are hopelessly stuck. Press spacebar to try again.", {time:3000});

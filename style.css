@@ -22,6 +22,14 @@ html, body {
     position:absolute;
     margin:25px;
     padding:0px;
+    z-index:1;
+}
+
+#bgrid {
+    position:absolute;
+    margin:25px;
+    padding:0px;
+    z-index:2;
 }
 
 .tile {
