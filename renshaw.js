@@ -59,16 +59,16 @@ var new_grid = function (url, callbacks) {
 
     var count = 0;
 
-    grid.move = function (axis, dist) {
+    grid.move = function (axis, dist, fake) {
         // Move ren, call tile stepped on.
-        count++;
+        if (!fake) count++;
         var ren = grid.ren;
         var prev = {x:ren.x, y:ren.y};
         ren.prev = prev;
         grid.ren[axis] += dist;
         if (ren.x < 0 || ren.x >= width ||
             ren.y < 0 || ren.y >= height ||
-            !real_tile(grid.tiles[ren.x][ren.y]).step(ren)) {
+            !real_tile(grid.tiles[ren.x][ren.y]).step(ren, fake)) {
             ren.x = prev.x; ren.y = prev.y;
             return false;
         }
@@ -155,15 +155,17 @@ var new_grid = function (url, callbacks) {
         }
     };
 
-    var dingsave = function (ren) {
-        var t = [ren.x, ren.y];
-        ren.x = ren.prev.x; ren.y = ren.prev.y;
-        save();
-        ren.x = t[0], ren.y = t[1];
-        if (callbacks.ding)
-            callbacks.ding(count);
-        count = 0;
-        grid.tiles[ren.x][ren.y].hash = "_";
+    var dingsave = function (ren, fake) {
+        if (!fake) {
+            var t = [ren.x, ren.y];
+            ren.x = ren.prev.x; ren.y = ren.prev.y;
+            save();
+            ren.x = t[0], ren.y = t[1];
+            if (callbacks.ding)
+                callbacks.ding(count);
+            count = 0;
+            grid.tiles[ren.x][ren.y].hash = "_";
+        }
         return true;
     };
 
@@ -367,5 +369,6 @@ var new_grid = function (url, callbacks) {
     };
 
     grid.saved = [];
+    grid.save();
     return grid;
 }

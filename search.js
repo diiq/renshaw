@@ -55,15 +55,14 @@ var can_i_win = function (grid, depth) {
             console.log("hoo");
             return true;
         }
-        if (grid.tiles[s.ren.x][s.ren.y].hash === "_"){
+        if (grid.tiles[s.ren.x][s.ren.y].hash === "*"){
             console.log("here", s);
-            grid.tiles[s.ren.x][s.ren.y].hash = "$";
             return true;
         }
         return false;
     };
 
-    var ret;
+    var ret, pre = grid.saved.slice(0);
 
     try {
         search(grid, term, cmp, esc);
@@ -75,6 +74,7 @@ var can_i_win = function (grid, depth) {
         else throw x;
     }
 
+    grid.saved = pre;
     return ret;
 };
 
@@ -121,14 +121,15 @@ var search = function (grid, termination, score_cmp, escape) {
     };
 
     var deeper = function (s) {
-        var moves = [["x", 1],
-                     ["x", -1],
-                     ["y", 1],
-                     ["y", -1]];
+        var moves = [["x", 1, true],
+                     ["x", -1, true],
+                     ["y", 1, true],
+                     ["y", -1, true]];
         var ss, mv, current = [s];
         if (ko(s.tilemap, s.ren)) return false; //been here before
 
         if (escape(s)){
+            grid.load(s0.tilemap, s0.ren);
             throw {m:"Escape", s:s};
         }
 
@@ -147,6 +148,6 @@ var search = function (grid, termination, score_cmp, escape) {
     var ret = deeper(s0);  
     
     // TODO preserve grid state before running
-    grid.saved = [[s0.tilemap, s0.ren]];
+    grid.load(s0.tilemap, s0.ren);
     return ret;
 };

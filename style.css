@@ -121,39 +121,11 @@ html, body {
     z-index: 499;
 }
 
-
-/* Speech bubbles */
-
-
-.triangle-left:after {
-	content:"";
-	position:absolute;
-	bottom:35px; /* value = - border-top-width - border-bottom-width */
-	left:-35px; /* controls horizontal position */
-	border-width:15px 35px 15px 0px; /* vary these values to change the angle of the vertex */
-	border-style:solid;
-	border-color:transparent #eec;
-    /* reduce the damage in FF3.0 */
-    display:block; 
-    width:0;
-}
-
-.triangle-right:after {
-	content:"";
-	position:absolute;
-	bottom:35px; /* value = - border-top-width - border-bottom-width */
-	right:-35px; /* controls horizontal position */
-	border-width:15px 0px 15px 35px; /* vary these values to change the angle of the vertex */
-	border-style:solid;
-	border-color:transparent #eec;
-    /* reduce the damage in FF3.0 */
-    display:block; 
-    width:0;
-}
-
-.space {
-    font:12px/12px "Courier New";
+#loader {
     position:absolute;
-    bottom:10px;
-    right:10px;
+    top:150px; 
+    width:100%;
+    left:0px;
+    text-align:center;
+    z-index:500;
 }

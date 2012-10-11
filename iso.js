@@ -37,7 +37,9 @@ function () {
 
     // Dups! Fix yo'sel!    
     var render_obj = function (x, y, ol, ot, cls, src) {
-        var $obj = preloaded["img/"+src].clone();        
+        if(!preloaded["img/"+src]) console.log(src);
+        var $obj = preloaded["img/"+src].clone();
+
         $obj.attr("class", cls);
         $obj.css({left: max_left+(y*y_magic[0]+x*x_magic[0])+ol+"px",
                    top:  max_top+(y*y_magic[1]+x*x_magic[1])+ot+"px"});
@@ -71,18 +73,50 @@ function () {
     };
 
 
+    /** Alerts **/
+    var alert = function(content, dic){
+        dic = dic || {};
+        $("#overlay").fadeIn(dic.time || 1000);
+        var it = $("<div class='story'></div>").hide();
+        it.append(content);
+        $("body").append(it);
+        if (dic.width)
+            it.css("width",  dic.width);
+        it.css({top : 100,
+                left : (($(window).width() - 
+                        it.outerWidth()) / 2 + 
+                        $(window).scrollLeft())});
+        if (dic["class"])
+            it.addClass(dic["class"]);
+        dic.time  = dic.time || 1500;
+        it.not(":last").fadeIn(dic.time);
+        it.filter(":last").fadeIn(dic.time, dic.callback);
+    };
+
+
+    var unalert = function (time, callback) {
+        $("#overlay").hide();
+        var it = $(".story");
+        it.not(":last").fadeOut(time);
+        it.filter(":last").fadeOut(time, callback);
+    };
+
+
     /** User input: **/
 
     var move = function(a, d){
         return function () {grid.move(a, d);
                             render(grid);
+                            if (!can_i_win(grid)) {
+                                alert("Bummer. You now are hopelessly stuck. Press spacebar to try again.", {time:3000});
+                            };
                            };
     };
     var keymap = {37:move("y",  1),   // left
                   38:move("x",  1),   // up
                   39:move("y", -1),   // right
                   40:move("x", -1),   // down
-                  82:function(){grid.load();render(grid);},       // r
+                  32:function(){unalert();grid.load();render(grid);}       // space
                  };
     $("body").keydown(function (e) {
                           if (keymap[e.which]) {
@@ -90,7 +124,10 @@ function () {
                           }
                       });
 
+
     $(window).load(function(){
+                       $("#overlay").fadeOut();
+                       $("#loader").hide();
                        render(grid);
                    });
     
@@ -107,7 +144,7 @@ var preload = function () {
         preloaded[arguments[i]] = k.clone();
         $("body").append(k.hide());
     }
-}("img/come.svg", 
+}(
   "img/baobab.png", "img/clockwork.png", "img/clock.png", "img/cclock.png", 
   "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
   "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 
