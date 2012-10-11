@@ -38,7 +38,7 @@ var new_grid = function (url, callbacks) {
         ymax = ymax ? Math.min(ymax, height) : height;
         // f still sees this as running from 0 to some width, 
         // and 0 to some height, regardless of xmin and ymin.
-        // Consider: is this the place to add content loading?
+        // Consider: isthis the place to add content loading?
         var i, j, ret = [];
         for(i=xmax-1; i>=Math.max(xmin, 0); i--){
             // this one goes backwards for rendering convenience.
@@ -57,7 +57,44 @@ var new_grid = function (url, callbacks) {
                         }, xmin, xmax, ymin, ymax);
     };
 
+
+    var save = function (ren) {
+        var s = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
+        grid.saved.push(s);
+        return s;
+    };
+    grid.save = save;
+
+    grid.load = function(tilemap, ren){
+        if (tilemap && ren) {
+            grid.tilemap = copy_obj(tilemap);
+            grid.ren = copy_obj(ren);
+        } else {
+            var s = grid.saved.pop();        
+            if(s) {
+                grid.tilemap = copy_obj(s[0]);
+                grid.ren = copy_obj(s[1]);
+            }
+        }
+    };
+
+
+    // This is a count of steps since last * checkpoint.
     var count = 0;
+
+    // This is a list of tilemap-operations waiting to be applied.
+    var transitions = [];
+
+    // This function will apply the waiting transitions; it returns
+    // false if there are no transitions waiting.
+    grid.transition = function () {
+        if (transitions.length === 0) return false;
+        for (var i = 0; i<transitions.length; i++){
+            transitions[i]();
+        }
+        transitions = [];
+        return true;
+    };
 
     grid.move = function (axis, dist, fake) {
         // Move ren, call tile stepped on.
@@ -72,6 +109,7 @@ var new_grid = function (url, callbacks) {
             ren.x = prev.x; ren.y = prev.y;
             return false;
         }
+        if (fake) grid.transition();
         return true;
     };
 
@@ -92,7 +130,9 @@ var new_grid = function (url, callbacks) {
     var color_change = function (color) {
         return function (ren) {
             if (color_step.call(this, ren)) {
-                ren.color = color;
+                transitions.push(function () {
+                                     ren.color = color;
+                                     });
                 return true;
             }
             return false;
@@ -101,19 +141,22 @@ var new_grid = function (url, callbacks) {
 
     var map_swap = function (a){
         return function (ren){
-            var ids = {};
-            for(tile in grid.tilemap){
-                ids[grid.tilemap[tile].id] = grid.tilemap[tile];
-            }
-            for(tile in grid.tilemap){
-                if (a[grid.tilemap[tile].id]) {
-                    grid.tilemap[tile] = ids[a[grid.tilemap[tile].id]];
-                }
-            }
+            transitions.push(function () {
+                                 var ids = {};
+                                 for(tile in grid.tilemap){
+                                     ids[grid.tilemap[tile].id] = grid.tilemap[tile];
+                                 }
+                                 for(tile in grid.tilemap){
+                                     if (a[grid.tilemap[tile].id]) {
+                                         grid.tilemap[tile] = ids[a[grid.tilemap[tile].id]];
+                                     }
+                                 }
+                             });
             return true;
         };
     };
 
+    // TODO memoize to avoid infinite regression? Or change behavior entirely?
     var slide = function (axis, dist){
         return function(ren){
             if (color_step.call(this, ren) && grid.move(axis, dist)) {
@@ -135,25 +178,6 @@ var new_grid = function (url, callbacks) {
         }
     };
 
-    var save = function (ren) {
-        var s = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
-        grid.saved.push(s);
-        return s;
-    };
-    grid.save = save;
-
-    grid.load = function(tilemap, ren){
-        if (tilemap && ren) {
-            grid.tilemap = copy_obj(tilemap);
-            grid.ren = copy_obj(ren);
-        } else {
-            var s = grid.saved.pop();        
-            if(s) {
-                grid.tilemap = copy_obj(s[0]);
-                grid.ren = copy_obj(s[1]);
-            }
-        }
-    };
 
     var dingsave = function (ren, fake) {
         if (!fake) {

@@ -17,12 +17,12 @@ function () {
 
 
     var
-    width = 22,    // in view at one time
+    width = 24,    // in view at one time
     height = 7,
     x_magic = [-50, -27],  // magic #s are offsets for isometric grid tiles
     y_magic = [-66, 7],
-    max_left = -((width-3)*x_magic[0]),  // offset for the whole grid
-    max_top = -((width)*x_magic[1]+(height)*y_magic[1]);
+    max_left = -((width-4)*x_magic[0]),  // offset for the whole grid
+    max_top = -((width-1)*x_magic[1]+(height)*y_magic[1]);
 
     var ding = function (i) {
         $("#ding").get(0).play();
@@ -52,7 +52,7 @@ function () {
     };
 
     var render_ren = function (ren){
-        render_obj(9, ren.y, 4, -90, "ren", ren.src[ren.color]);
+        render_obj(10, ren.y, 4, -90, "ren", ren.src[ren.color]);
         // Shift bg to match
         $("#mask").css("background-position",  -ren.x*x_magic[0]+"px " + 
                                                -ren.x*x_magic[1]+"px");
@@ -106,6 +106,7 @@ function () {
 
     var move = function(a, d){
         return function () {grid.move(a, d);
+                            grid.transition();
                             render(grid);
                             if (!can_i_win(grid)) {
                                 alert("Bummer. You now are hopelessly stuck. Press spacebar to try again.", {time:3000});
