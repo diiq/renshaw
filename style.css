@@ -20,16 +20,15 @@ html, body {
 
 #grid {
     position:absolute;
-    margin:25px;
+
     padding:0px;
     z-index:1;
 }
 
 #bgrid {
     position:absolute;
-    margin:25px;
     padding:0px;
-    z-index:2;
+    z-index:10;
 }
 
 .tile {
@@ -42,6 +41,7 @@ html, body {
     position:absolute;
     margin:0px;
     border:0px;
+    z-index:3;
 }
 
 #pallete {

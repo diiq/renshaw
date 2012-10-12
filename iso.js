@@ -22,7 +22,9 @@ function () {
     x_magic = [-50, -27],  // magic #s are offsets for isometric grid tiles
     y_magic = [-66, 7],
     max_left = -((width-4)*x_magic[0]),  // offset for the whole grid
-    max_top = -((width-1)*x_magic[1]+(height)*y_magic[1]);
+    max_top = -((width-1)*x_magic[1]+(height)*y_magic[1]),
+    step_speed = 125,
+    transition_speed = 150;
 
     var ding = function (i) {
         $("#ding").get(0).play();
@@ -35,25 +37,58 @@ function () {
 
     /** Rendering **/
     // Dups! Fix yo'sel!    
-    var buffer; // todo, get out of this scope
-    var render_obj = function (x, y, ol, ot, cls, src) {
+    var render_obj = function (buffer, x, y, ol, ot, cls, src) {
         if(!preloaded["img/"+src]) console.log(src);
         var $obj = preloaded["img/"+src].clone();
 
         $obj.attr("class", cls);
-        $obj.css({left: max_left+(y*y_magic[0]+x*x_magic[0])+ol+"px",
+        $obj.css({ left: max_left+(y*y_magic[0]+x*x_magic[0])+ol+"px",
                    top:  max_top+(y*y_magic[1]+x*x_magic[1])+ot+"px"});
         buffer.append($obj);
         return $obj;
     };
 
-    var render_tile = function (x, y, tile){
-        render_obj(x, y, 0, 0, "tile", tile.src);
+
+    var render_tile = function (buffer) {
+        return function (x, y, tile){
+            render_obj(buffer, x, y, 0, 0, "tile", tile.src);
+        };
     };
 
-    var render_ren = function (ren){
-        render_obj(10, ren.y, 4, -90, "ren", ren.src[ren.color]);
-        // Shift bg to match
+    var render_tiles = function(grid, buffer) {
+            grid.real_map(render_tile(buffer), 
+                          grid.ren.x-width/2+2, 
+                          grid.ren.x+width/2+2);
+    };
+
+
+    var render_special = function (buffer) {
+        return function (x, y, tile){
+            render_obj(x, y, tile.offset[0], tile.offset[1], "tile", tile.src);
+        };
+    };
+
+    var render_specials = function (grid, buffer) {
+        grid.map_specials(render_special(buffer), 
+                          grid.ren.x-width/2+2, 
+                          grid.ren.x+width/2+2);
+    };
+
+
+    var render_ren = function (buffer, ren){
+        render_obj(buffer, 10, ren.y, 4, -90, "ren", ren.src[ren.color]);
+    };
+
+    var shift_ren = function(ren, continuation) {
+        var x = 10, y = ren.y;
+        $(".ren").animate(
+            {left: max_left+(y*y_magic[0]+x*x_magic[0])+4+"px",
+             top:  max_top+(y*y_magic[1]+x*x_magic[1])+-90+"px"},
+            {duration:step_speed, complete:continuation});
+    };
+
+
+    var render_background = function (ren){
         $("#mask").css("background-position",  -ren.x*x_magic[0]+"px " + 
                                                -ren.x*x_magic[1]+"px");
         $("#mask").css("background-color", {orang:"#653", 
@@ -61,51 +96,87 @@ function () {
                                             white:"#555"}[ren.color]);
     };
 
-    var render_special = function (x, y, tile){
-        render_obj(x, y, tile.offset[0], tile.offset[1], "tile", tile.src);
-    };
 
-    var old_x;
-    var render = function (grid) {
-        buffer = $("<div id='bgrid'></div>").hide();
-
-        if (grid.ren.x !== old_x) {
-            grid.real_map(render_tile, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
-            grid.map_specials(render_special, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
-            render_ren(grid.ren);
-
-            $("#grid").empty();
-
-            old_x = grid.ren.x;
-        } else {
-            $("#grid .ren").remove();
-            render_ren(grid.ren);
-        }
-        $("#grid").append(buffer.contents());
-
-
-
+    var render_transitions = function (grid, continuation) {
         if (grid.transition()) {
-            grid.real_map(render_tile, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
-            grid.map_specials(render_special, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
-            render_ren(grid.ren);
-
-            $("#mask").append(buffer);
-            buffer.fadeIn(250, function () {
-                              $("#grid").empty();
-                              $("#grid").append(buffer.contents());
-                              $("#mask #bgrid").remove();
-                          });
-
+            return function () {
+                var buffer = $("<div id='bgrid'></div>").hide();
+                render_tiles(grid, buffer);
+                render_specials(grid, buffer);            
+                render_ren(buffer, grid.ren);
+                $("#mask").append(buffer);
+                buffer.fadeIn(transition_speed, function () {
+                                                   $("#mask .ren").remove();
+                                                   render_ren($("#mask"), grid.ren);
+                                                   $("#grid").empty();
+                                                   $("#grid").append(buffer.contents());
+                                                   $("#mask #bgrid").remove();
+                                                   
+                                                   continuation();
+                                               });
+                
+            } 
+        } else {
+            return continuation;
         }
-
-
-
+        
     };
+
+    var initialize_render = function (grid) {
+        var buffer = $("<div></div>");
+        $(".ren").remove();
+
+        render_tiles(grid, buffer);
+        render_specials(grid, buffer);
+        render_ren($("#mask"), grid.ren);
+
+        $("#grid").empty();
+        $("#grid").append(buffer.contents());
+    };
+
+    var render_motion = function (grid, continuation) {
+        // If we haven't moved forward or backward, just redraw Ren; 
+        // otherwise, you'll have to draw everything.
+        var buffer = $("<div></div>");
+        if (grid.ren.x !== grid.ren.prev.x) { // x motion moves the grid
+            var xmove = (grid.ren.x-grid.ren.prev.x);
+
+            $("#grid").animate({top: '-='+xmove*x_magic[1],
+                                left: '-='+xmove*x_magic[0]
+                               }, {duration:step_speed, complete:function () {
+                                       $("#grid").empty();
+                                       $("#grid").css({top: 0,
+                                                       left: 0
+                                                          });
+                                       $("#grid").append(buffer.contents());
+                                   }});
+
+            render_tiles(grid, buffer);
+            render_specials(grid, buffer);
+            continuation = render_transitions(grid, continuation);
+            shift_ren(grid.ren, continuation);
+
+        } 
+        if (grid.ren.y !== grid.ren.prev.y){
+            continuation = render_transitions(grid, continuation);
+            shift_ren(grid.ren, continuation);
+        }
+    };
+
+    var render = function (grid, continuation) {
+        // $("#grid").stop(true, true);
+        // $(".ren").stop(true, true);
+        // $("#bgrid").stop(true, true);
+
+        render_motion(grid, continuation); 
+    };
+
 
 
     /** Alerts **/
-    var alert = function(content, dic){
+    var alerted = false;
+    var ralert = function(content, dic){
+        alerted = true;
         dic = dic || {};
         $("#overlay").fadeIn(dic.time || 1000);
         var it = $("<div class='story'></div>").hide();
@@ -126,7 +197,8 @@ function () {
 
 
     var unalert = function (time, callback) {
-        $("#overlay").hide();
+        alerted = false;
+        $("#overlay").stop().hide();
         var it = $(".story");
         it.not(":last").fadeOut(time);
         it.filter(":last").fadeOut(time, callback);
@@ -134,20 +206,27 @@ function () {
 
 
     /** User input: **/
-
+    var canmove = true;
     var move = function(a, d){
-        return function () {grid.move(a, d);
-                            render(grid);
-                            if (!can_i_win(grid)) {
-                                alert("Bummer. You now are hopelessly stuck. Press spacebar to try again.", {time:3000});
-                            };
-                           };
+        return function () { 
+            if (!canmove) return;
+            if( !grid.move(a, d) ) return;
+            canmove = false;
+            render(grid, function () {
+                       if (!can_i_win(grid) && !alerted) {
+                           ralert("Bummer. You now are hopelessly "
+                                  + "stuck. Press spacebar to try "
+                                  + "again.", {time:3000});
+                       }
+                       canmove = true;
+                   });
+        };
     };
     var keymap = {37:move("y",  1),   // left
                   38:move("x",  1),   // up
                   39:move("y", -1),   // right
                   40:move("x", -1),   // down
-                  32:function(){unalert();grid.load();render(grid);}       // space
+                  32:function(){unalert();grid.load();initialize_render(grid);}       // space
                  };
     $("body").keydown(function (e) {
                           if (keymap[e.which]) {
@@ -159,7 +238,7 @@ function () {
     $(window).load(function(){
                        $("#overlay").fadeOut();
                        $("#loader").hide();
-                       render(grid);
+                       initialize_render(grid);
                    });
     
 });

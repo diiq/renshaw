@@ -22,7 +22,8 @@ var new_grid = function (url, callbacks) {
     // Ren is the player character; he changes color, so he's got multiple sources.
     grid.ren = {x:0, y:3, 
                 src:{white:"wren.png", green:"gren.png", orang:"oren.png"},
-                color : "white"};
+                color : "white",
+                prev:{x:0, y:3}};
 
     var real_tile = function (tile) {
     // Acceptable architectural artifact.
@@ -185,10 +186,12 @@ var new_grid = function (url, callbacks) {
             ren.x = ren.prev.x; ren.y = ren.prev.y;
             save();
             ren.x = t[0], ren.y = t[1];
-            if (callbacks.ding)
-                callbacks.ding(count);
-            count = 0;
-            grid.tiles[ren.x][ren.y].hash = "_";
+            transitions.push(function(){
+                                 if (callbacks.ding)
+                                     callbacks.ding(count);
+                                 count = 0;
+                                 grid.tiles[ren.x][ren.y].hash = "_";
+                             });
         }
         return true;
     };
