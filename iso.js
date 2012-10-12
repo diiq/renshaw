@@ -26,7 +26,7 @@ var preload = function () {
             preloaded[arguments[i]] = k.clone();
             $("body").append(k.hide());
         }
-    }("img/load.gif",
+    }("img/load.gif", "img/bang.png",
       "img/baobab.png", "img/clockwork.png", "img/clock.png", "img/cclock.png", 
       "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
       "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 
