@@ -52,11 +52,11 @@ var can_i_win = function (grid, depth) {
     var esc = function(s){
         var d = new Date();
         if (d.getTime() - 16 > time) {
-            console.log("hoo");
+            //console.log("hoo");
             return true;
         }
         if (grid.tiles[s.ren.x][s.ren.y].hash === "*"){
-            console.log("here", s);
+            //console.log("here", s);
             return true;
         }
         return false;

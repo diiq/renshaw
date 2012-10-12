@@ -252,7 +252,7 @@ var preload = function () {
         k = $("<img>");
         k.attr("src", arguments[i]);
         preloaded[arguments[i]] = k.clone();
-        $("body").append(k.hide());
+        $(document).ready(function(){$(body).append(k.hide());});
     }
 }("img/load.gif",
   "img/baobab.png", "img/clockwork.png", "img/clock.png", "img/cclock.png", 
