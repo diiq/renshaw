@@ -52,7 +52,6 @@ function () {
     };
 
     var render_ren = function (ren){
-        $(".ren").remove();
         render_obj(10, ren.y, 4, -90, "ren", ren.src[ren.color]);
         // Shift bg to match
         $("#mask").css("background-position",  -ren.x*x_magic[0]+"px " + 
@@ -68,17 +67,37 @@ function () {
 
     var old_x;
     var render = function (grid) {
-        buffer = $("<div id='bgrid'></div>");
-
-        grid.transition();
+        buffer = $("<div id='bgrid'></div>").hide();
 
         if (grid.ren.x !== old_x) {
             grid.real_map(render_tile, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
             grid.map_specials(render_special, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
+            render_ren(grid.ren);
+
+            $("#grid").empty();
+
+            old_x = grid.ren.x;
+        } else {
+            $("#grid .ren").remove();
+            render_ren(grid.ren);
         }
-        render_ren(grid.ren);
-        $("#grid").empty();
         $("#grid").append(buffer.contents());
+
+
+
+        if (grid.transition()) {
+            grid.real_map(render_tile, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
+            grid.map_specials(render_special, grid.ren.x-width/2+2, grid.ren.x+width/2+2);
+            render_ren(grid.ren);
+
+            $("#mask").append(buffer);
+            buffer.fadeIn(250, function () {
+                              $("#grid").empty();
+                              $("#grid").append(buffer.contents());
+                              $("#mask #bgrid").remove();
+                          });
+
+        }
 
 
 
