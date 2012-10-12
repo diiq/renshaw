@@ -61,9 +61,10 @@ var new_grid = function (url, callbacks) {
 
     var save = function (ren) {
         var s = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
-        grid.saved.push(s);
+        grid.saved = s;
         return s;
     };
+
     grid.save = save;
 
     grid.load = function(tilemap, ren){
@@ -71,7 +72,7 @@ var new_grid = function (url, callbacks) {
             grid.tilemap = copy_obj(tilemap);
             grid.ren = copy_obj(ren);
         } else {
-            var s = grid.saved.pop();        
+            var s = grid.saved;
             if(s) {
                 grid.tilemap = copy_obj(s[0]);
                 grid.ren = copy_obj(s[1]);
@@ -182,10 +183,7 @@ var new_grid = function (url, callbacks) {
 
     var dingsave = function (ren, fake) {
         if (!fake) {
-            var t = [ren.x, ren.y];
-            ren.x = ren.prev.x; ren.y = ren.prev.y;
             save();
-            ren.x = t[0], ren.y = t[1];
             transitions.push(function(){
                                  if (callbacks.ding)
                                      callbacks.ding(count);
@@ -293,13 +291,7 @@ var new_grid = function (url, callbacks) {
 
                     "$": {id:"MSAVE", src:"msave.png", step : minor_save},
                     "*": {id:"SAVE", src:"save.png", step : dingsave},
-                    "_": {id:"SAVED", src:"saved.png", step : function (ren) {
-                              var t = [ren.x, ren.y];
-                              ren.x = ren.prev.x; ren.y = ren.prev.y;
-                              save();
-                              ren.x = t[0], ren.y = t[1];
-                              return true;
-                          }},
+                    "_": {id:"SAVED", src:"saved.png", step : save},
 
                     "~": {id:"WATER", src:"water.png", step : no_go}
 

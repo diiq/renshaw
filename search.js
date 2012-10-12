@@ -62,7 +62,7 @@ var can_i_win = function (grid, depth) {
         return false;
     };
 
-    var ret, pre = grid.saved.slice(0);
+    var ret, pre = grid.saved;
 
     try {
         search(grid, term, cmp, esc);

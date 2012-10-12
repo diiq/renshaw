@@ -46,6 +46,14 @@ var preload = function () {
     step_speed = 125,
     transition_speed = 150;
 
+
+    var grid_left = function(x, y){
+        return max_left+(y*y_magic[0]+x*x_magic[0]);
+    };
+    var grid_top = function(x, y){
+        return max_top+(y*y_magic[1]+x*x_magic[1]);
+    };
+
     var ding = function (i) {
         $("#ding").get(0).play();
         $("#rewards").append("<div class='reward'>"+i+"</div>");
@@ -62,8 +70,8 @@ var preload = function () {
         var $obj = preloaded["img/"+src].clone();
 
         $obj.attr("class", cls);
-        $obj.css({ left: max_left+(y*y_magic[0]+x*x_magic[0])+ol+"px",
-                   top:  max_top+(y*y_magic[1]+x*x_magic[1])+ot+"px"});
+        $obj.css({ left: grid_left(x, y) + ol + "px",
+                   top:  grid_top(x, y)  + ot + "px"});
         buffer.append($obj);
         return $obj;
     };
@@ -135,7 +143,7 @@ var preload = function () {
                                                    continuation();
                                                });
                 
-            } 
+            };
         } else {
             return continuation;
         }
@@ -230,7 +238,11 @@ var preload = function () {
     var move = function(a, d){
         return function () { 
             if (!canmove) return;
-            if( !grid.move(a, d) ) return;
+            if( !grid.move(a, d) ) {
+                bang(grid.ren, function () {grid.load();
+                                            initialize_render(grid);});
+                return;
+            }
             canmove = false;
             render(grid, function () {
                        if (!can_i_win(grid) && !alerted) {
@@ -260,6 +272,21 @@ var preload = function () {
                        $("#loader").hide();
                        initialize_render(grid);
                    });
-    
+
+
+
+    var bang = function (ren, continuation){
+        $(".ren").remove();
+//        $("#bang").get(0).();
+        $("#bang").get(0).play();
+        var a = $("<img src='img/bang.png'>")
+            .addClass("bang")
+            .css({top:grid_top(10, ren.y)  - 350 + "px",
+                  left:grid_left(10, ren.y) - 350 + "px"})
+            .hide()
+            .fadeIn(50)
+            .fadeOut(1000, continuation);
+        $("#mask").append(a);
+    };
 });
 
