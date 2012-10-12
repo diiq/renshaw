@@ -16,6 +16,26 @@ function () {
      */
 
 
+var preload = function () {
+        var j, k;
+        for(var i =0; i<arguments.length; i++){
+            j = new Image();
+            j.src = arguments[i];
+            k = $("<img>");
+            k.attr("src", arguments[i]);
+            preloaded[arguments[i]] = k.clone();
+            $("body").append(k.hide());
+        }
+    }("img/load.gif",
+      "img/baobab.png", "img/clockwork.png", "img/clock.png", "img/cclock.png", 
+      "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
+      "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 
+      "img/baobad.png", "img/gdown.png", "img/green.png", "img/grigh.png", 
+      "img/gwchange.png", "img/save.png", "img/saved.png", "img/waterb.png", 
+      "img/wdown.png", "img/white.png", "img/wren.png", "img/wupup.png", 
+      "img/orang.png", "img/oren.png", "img/owchange.png", "img/wochange.png", 
+      "img/gochange.png", "img/ogchange.png", "img/goswap.png", "img/owswap.png");
+    
     var
     width = 24,    // in view at one time
     height = 7,
@@ -243,23 +263,3 @@ function () {
     
 });
 
-
-var preload = function () {
-    var j, k;
-    for(var i =0; i<arguments.length; i++){
-        j = new Image();
-        j.src = arguments[i];
-        k = $("<img>");
-        k.attr("src", arguments[i]);
-        preloaded[arguments[i]] = k.clone();
-        $(document).ready(function(){$(body).append(k.hide());});
-    }
-}("img/load.gif",
-  "img/baobab.png", "img/clockwork.png", "img/clock.png", "img/cclock.png", 
-  "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
-  "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 
-  "img/baobad.png", "img/gdown.png", "img/green.png", "img/grigh.png", 
-  "img/gwchange.png", "img/save.png", "img/saved.png", "img/waterb.png", 
-  "img/wdown.png", "img/white.png", "img/wren.png", "img/wupup.png", 
-  "img/orang.png", "img/oren.png", "img/owchange.png", "img/wochange.png", 
-  "img/gochange.png", "img/ogchange.png", "img/goswap.png", "img/owswap.png");
