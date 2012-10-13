@@ -122,7 +122,7 @@ var preload = function () {
                            {duration: step_speed, 
                             complete:  function () {
                                 $("#mask").css("background-color", 
-                                               {orang:"#2f0f2f", 
+                                               {orang:"#2f1f2f", 
                                                 green:"#102f2f", 
                                                 white:"#1f1f2f"}[ren.color]);
                             }});
@@ -190,16 +190,14 @@ var preload = function () {
                           grid.ren.x+width/2+2);
         } else {
             rend = function (x, y, tile, rx, ry){
-                console.log(x, y, rx, ry);
                 render_obj(buffer, 0, y, 
                            (tile.oleft || 0) - ol,
                            (tile.otop  || 0) - ot,
                            "tile", tile.src);
             };
-            console.log(grid.ren.x-width/2+2-1);
             grid.real_map(rend, // this won't work
-                          grid.ren.x-width/2+2-1,
-                          grid.ren.x-width/2+2);            
+                          grid.ren.x-width/2+2,
+                          grid.ren.x-width/2+2+1);            
         }
         deep--;
     };
