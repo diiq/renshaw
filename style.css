@@ -20,7 +20,8 @@ html, body {
 
 #grid {
     position:absolute;
-
+    top:0px;
+    left:0px;
     padding:0px;
     z-index:1;
 }
@@ -29,6 +30,8 @@ html, body {
     position:absolute;
     padding:0px;
     z-index:10;
+    top:0px;
+    left:0px;
 }
 
 .bang {

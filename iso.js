@@ -3,7 +3,7 @@ var preloaded = {};
 $(document).ready(
 function () {
 
-    /* This file provides a function to render a game board in iso:
+    /* This file provides the 2.5D UI for Renshaw's Disco.
 
      API: render(game)
 
@@ -130,6 +130,7 @@ var preload = function () {
     
 
     var render_transitions = function (grid, continuation) {
+        // Todo, render ren-transitions separately.
         if (grid.transition()) {
             return function () {
                 var buffer = $("<div id='bgrid'></div>").hide();
@@ -138,14 +139,15 @@ var preload = function () {
                 render_ren(buffer, grid.ren);
                 $("#mask").append(buffer);
                 buffer.fadeIn(transition_speed, function () {
-                                                   $("#mask .ren").remove();
-                                                   render_ren($("#mask"), grid.ren);
-                                                   $("#grid").empty();
-                                                   $("#grid").append(buffer.contents());
-                                                   $("#mask #bgrid").remove();
-                                                   
-                                                   continuation();
-                                               });
+                                  $("#mask .ren").remove();
+                                  render_ren($("#mask"), grid.ren);
+                                  $("#grid").empty();
+                                  $("#grid").css({top:0, left:0});
+                                  $("#grid").append(buffer.contents());
+                                  $("#mask #bgrid").remove();
+                                  
+                                  continuation();
+                              });
                 
             };
         } else {
@@ -157,14 +159,49 @@ var preload = function () {
     var initialize_render = function (grid) {
         var buffer = $("<div></div>");
         $(".ren").remove();
-
+        
         render_tiles(grid, buffer);
         render_specials(grid, buffer);
         render_ren($("#mask"), grid.ren);
         shift_background(grid.ren);
 
         $("#grid").empty();
+        $("#grid").css({top:0, left:0});
         $("#grid").append(buffer.contents());
+    };
+
+    var deep = -1;
+    var render_new_row = function (grid, buffer, direction){
+        var ol = parseInt(buffer.css('left'));
+        var ot = parseInt(buffer.css('top'));
+
+        var rend;
+
+        if (direction > 0) {
+            rend = function (x, y, tile){
+                render_obj(buffer, (width-1), y, 
+                           (tile.oleft || 0) - ol,
+                           (tile.otop  || 0) - ot,
+                           "tile", tile.src).css('z-index', deep);
+            };
+            
+            grid.real_map(rend,
+                          grid.ren.x+width/2+2-1,
+                          grid.ren.x+width/2+2);
+        } else {
+            rend = function (x, y, tile, rx, ry){
+                console.log(x, y, rx, ry);
+                render_obj(buffer, 0, y, 
+                           (tile.oleft || 0) - ol,
+                           (tile.otop  || 0) - ot,
+                           "tile", tile.src);
+            };
+            console.log(grid.ren.x-width/2+2-1);
+            grid.real_map(rend, // this won't work
+                          grid.ren.x-width/2+2-1,
+                          grid.ren.x-width/2+2);            
+        }
+        deep--;
     };
 
     var render_motion = function (grid, continuation) {
@@ -175,19 +212,15 @@ var preload = function () {
         var buffer = $("<div></div>");
         if (grid.ren.x !== grid.ren.prev.x) { // x motion moves the grid
             var xmove = (grid.ren.x-grid.ren.prev.x);
+            var sign = xmove/Math.abs(xmove);
+            for(var i = 0; i<xmove*sign; i++){
+                $("#grid").animate({top: '-='+sign*x_magic[1],
+                                    left: '-='+sign*x_magic[0]
+                                   }, {duration:step_speed, complete:function () {
+                                           render_new_row(grid, $("#grid"), sign);
+                                       }});
+            }
 
-            $("#grid").animate({top: '-='+xmove*x_magic[1],
-                                left: '-='+xmove*x_magic[0]
-                               }, {duration:step_speed, complete:function () {
-                                       $("#grid").empty();
-                                       $("#grid").css({top: 0,
-                                                       left: 0
-                                                          });
-                                       $("#grid").append(buffer.contents());
-                                   }});
-
-            render_tiles(grid, buffer);
-            render_specials(grid, buffer);
             continuation = render_transitions(grid, continuation);
             shift_ren(grid.ren, continuation);
 

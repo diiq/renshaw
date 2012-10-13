@@ -35,11 +35,13 @@ var new_grid = function (url, callbacks) {
         // Silently ignore values outside domain.
         xmin = xmin || 0; 
         ymin = ymin || 0;
-        xmax = xmax ? Math.min(xmax, width) : width; 
-        ymax = ymax ? Math.min(ymax, height) : height;
+        xmax = (xmax === undefined) ? width : Math.min(xmax, width); 
+        ymax = (ymax === undefined) ? height : Math.min(ymax, height);
         // f still sees this as running from 0 to some width, 
         // and 0 to some height, regardless of xmin and ymin.
         // Consider: isthis the place to add content loading?
+
+        console.log(xmax);
         var i, j, ret = [];
         for(i=xmax-1; i>=Math.max(xmin, 0); i--){
             // this one goes backwards for rendering convenience.
@@ -112,6 +114,7 @@ var new_grid = function (url, callbacks) {
             return false;
         }
         if (fake) grid.transition();
+        ren.prev = prev;
         return true;
     };
 
