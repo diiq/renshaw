@@ -198,13 +198,8 @@ var preload = function () {
     };
 
     var render = function (grid, continuation) {
-        // $("#grid").stop(true, true);
-        // $(".ren").stop(true, true);
-        // $("#bgrid").stop(true, true);
-
         render_motion(grid, continuation); 
     };
-
 
 
     var tick_bang = function (count) {
