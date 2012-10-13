@@ -102,7 +102,7 @@ html, body {
     margin:10px;
 }
 
-.story {
+.alert {
     width:450px;
     position:absolute;
 	background-color:#eec;
@@ -119,10 +119,11 @@ html, body {
     width:600px;
 }
 
-.story p {
+.alert p {
     color:#665;
     font: 20px/24px "Courier New" bold;
 }
+
 
 #overlay {
     position: fixed; 
@@ -138,9 +139,27 @@ html, body {
 
 #loader {
     position:absolute;
-    top:150px; 
+    top:25px; 
     width:100%;
     left:0px;
     text-align:center;
     z-index:500;
+}
+
+.story {
+    margin:auto;
+}
+
+.story p {
+    margin:20px auto;
+    width:750px;
+    text-align:left;
+    color:#665;
+    font: 18px/20px "Courier New" bold;
+}
+
+#start {
+    text-align:center;
+    margin-top:55px;
+    font-size:24px;
 }

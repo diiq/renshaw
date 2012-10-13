@@ -207,40 +207,6 @@ var preload = function () {
 
 
 
-
-    /** User input: **/
-    var canmove = true;
-    var move = function(a, d){
-        return function () { 
-            if (!canmove) return;
-            canmove = false;
-            if( !grid.move(a, d) ) {
-                bang(grid.ren, function () {grid.load();
-                                            initialize_render(grid);
-                                            canmove = true;});
-                return;
-            }
-            render(grid, function () {
-                       if (!can_i_win(grid)) {
-                           tick_bang();
-                       }
-                       canmove = true;
-                   });
-        };
-    };
-    var keymap = {37:move("y",  1),   // left
-                  38:move("x",  1),   // up
-                  39:move("y", -1),   // right
-                  40:move("x", -1),   // down
-                  32:function(){unalert();grid.load();initialize_render(grid);}       // space
-                 };
-    $("body").keydown(function (e) {
-                          if (keymap[e.which]) {
-                              keymap[e.which]();
-                          }
-                      });
-
-
     var tick_bang = function (count) {
         count = count || 10;
         $("#impossible").show().css('left', ($(window).width() - 
@@ -279,12 +245,57 @@ var preload = function () {
     };
 
 
-    $("#impossible").hide();
-    $(window).load(function(){
-                       $("#overlay").fadeOut();
-                       $("#loader").hide();
-                       initialize_render(grid);
-                   });
 
+    /** User input: **/
+    var canmove = true;
+    var move = function(a, d){
+        return function () { 
+            if (!canmove) return;
+            canmove = false;
+            if( !grid.move(a, d) ) {
+                bang(grid.ren, function () {grid.load();
+                                            initialize_render(grid);
+                                            canmove = true;});
+                return;
+            }
+            render(grid, function () {
+                       if (!can_i_win(grid)) {
+                           tick_bang();
+                       }
+                       canmove = true;
+                   });
+        };
+    };
+    var keymap = {37:move("y",  1),   // left
+                  38:move("x",  1),   // up
+                  39:move("y", -1),   // right
+                  40:move("x", -1),   // down
+                  32:function(){
+                      grid.load();
+                      initialize_render(grid);}       // space
+                 };
+
+
+    $("#impossible").hide();    
+    $("#start").hide();
+    $(window).load(
+        function(){
+            $("#limg").hide();
+            $("#start").fadeIn();
+            $("body").keydown(
+                function (e) {
+                    if(e.which === 32) {
+                        $("#overlay").fadeOut();
+                        $("#loader").fadeOut();
+                        $("body").keydown(function (e) {
+                                              if (keymap[e.which]) {
+                                                  keymap[e.which]();
+                                              }
+                                          });
+                        initialize_render(grid);
+                    }
+                }
+            );
+        });
 });
 
