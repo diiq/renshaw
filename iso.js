@@ -241,31 +241,27 @@ var preload = function () {
                       });
 
 
-    $(window).load(function(){
-                       $("#overlay").fadeOut();
-                       $("#loader").hide();
-                       initialize_render(grid);
-                   });
-
-
     var tick_bang = function (count) {
         count = count || 10;
+        $("#impossible").show().css('left', ($(window).width() - 
+                                             $("#impossible").outerWidth()) / 2);
         if (count % 2) {
             $("#mask").css("background-color", "#FF0000");
         } else {
-            $("#mask").css("background-color", "#FFFFFF");
+            $("#mask").css("background-color", "#1F1F1F");
         }
         setTimeout(function () {
                        if (count > 1) {
                            tick_bang(count-1);
                        } else {
+                           $("#mask").css("background-color", "#1f1f1f");
+                           $("#impossible").hide();
                            if (!can_i_win(grid)){
-                               $("#mask").css("background-color", "#555555");
                                bang(grid.ren, function () {grid.load();
                                                            initialize_render(grid);});
                            }
                        }
-                   }, 200);
+                   }, 500);
     };
 
     var bang = function (ren, continuation){
@@ -281,5 +277,14 @@ var preload = function () {
             .fadeOut(1000, continuation);
         $("#mask").append(a);
     };
+
+
+    $("#impossible").hide();
+    $(window).load(function(){
+                       $("#overlay").fadeOut();
+                       $("#loader").hide();
+                       initialize_render(grid);
+                   });
+
 });
 
