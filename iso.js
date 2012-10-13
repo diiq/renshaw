@@ -29,7 +29,8 @@ var preload = function () {
     }("img/load.gif", "img/bang.png",
       "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
       "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 
-      "img/baobad.png", "img/gdown.png", "img/green.png", "img/grigh.png", 
+      "img/gdown.png", "img/green.png", "img/grigh.png", 
+      "img/odown.png", "img/oleft.png", "img/origh.png", "img/oupup.png",
       "img/gwchange.png", "img/save.png", "img/saved.png", "img/waterb.png", 
       "img/wdown.png", "img/white.png", "img/wren.png", "img/wupup.png", 
       "img/orang.png", "img/oren.png", "img/owchange.png", "img/wochange.png", 
@@ -212,7 +213,7 @@ var preload = function () {
             $("#mask").css("background-color", "#1F1F1F");
         }
         setTimeout(function () {
-                       if (count > 1) {
+                       if (count > 1 && !can_i_win(grid)){
                            tick_bang(count-1);
                        } else {
                            $("#mask").css("background-color", "#1f1f1f");
