@@ -39,9 +39,7 @@ var wander = function (grid, depth) {
 };
 
 var can_i_win = function (grid, depth) {
-    depth = depth || 50;
     var term = function (s) {
-        if (s.depth > depth) return true;
         return false;
     };
     var cmp = function (s1, s2) {
@@ -51,8 +49,8 @@ var can_i_win = function (grid, depth) {
     var time = d.getTime();
     var esc = function(s){
         var d = new Date();
-        if (d.getTime() - 16 > time) {
-            //console.log("hoo");
+        if (d.getTime() - 8 > time) {
+            console.log("hoo");
             return true;
         }
         if (grid.tiles[s.ren.x][s.ren.y].hash === "*"){

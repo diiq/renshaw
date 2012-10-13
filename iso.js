@@ -79,7 +79,7 @@ var preload = function () {
 
     var render_tile = function (buffer) {
         return function (x, y, tile){
-            render_obj(buffer, x, y, 0, 0, "tile", tile.src);
+            render_obj(buffer, x, y, tile.oleft || 0, tile.otop || 0, "tile", tile.src);
         };
     };
 
@@ -104,26 +104,30 @@ var preload = function () {
 
 
     var render_ren = function (buffer, ren){
-        render_obj(buffer, 10, ren.y, 4, -90, "ren", ren.src[ren.color]);
+        render_obj(buffer, 10, ren.y, 4, -95, "ren", ren.src[ren.color]);
     };
 
     var shift_ren = function(ren, continuation) {
         var x = 10, y = ren.y;
         $(".ren").animate(
             {left: max_left+(y*y_magic[0]+x*x_magic[0])+4+"px",
-             top:  max_top+(y*y_magic[1]+x*x_magic[1])+-90+"px"},
+             top:  max_top+(y*y_magic[1]+x*x_magic[1])+-95+"px"},
             {duration:step_speed, complete:continuation});
     };
 
 
-    var render_background = function (ren){
-        $("#mask").css("background-position",  -ren.x*x_magic[0]+"px " + 
-                                               -ren.x*x_magic[1]+"px");
-        $("#mask").css("background-color", {orang:"#653", 
-                                            green:"#563", 
-                                            white:"#555"}[ren.color]);
+    var shift_background = function (ren){
+        $("#mask").animate({'background-position-x':  -ren.x*x_magic[0],
+                            'background-position-y': -ren.x*x_magic[1]}, 
+                           {duration: step_speed, 
+                            complete:  function () {
+                                $("#mask").css("background-color", 
+                                               {orang:"#2f0f2f", 
+                                                green:"#102f2f", 
+                                                white:"#1f1f2f"}[ren.color]);
+                            }});
     };
-
+    
 
     var render_transitions = function (grid, continuation) {
         if (grid.transition()) {
@@ -157,6 +161,7 @@ var preload = function () {
         render_tiles(grid, buffer);
         render_specials(grid, buffer);
         render_ren($("#mask"), grid.ren);
+        shift_background(grid.ren);
 
         $("#grid").empty();
         $("#grid").append(buffer.contents());
@@ -165,6 +170,8 @@ var preload = function () {
     var render_motion = function (grid, continuation) {
         // If we haven't moved forward or backward, just redraw Ren; 
         // otherwise, you'll have to draw everything.
+        shift_background(grid.ren);
+
         var buffer = $("<div></div>");
         if (grid.ren.x !== grid.ren.prev.x) { // x motion moves the grid
             var xmove = (grid.ren.x-grid.ren.prev.x);
@@ -201,54 +208,22 @@ var preload = function () {
 
 
 
-    /** Alerts **/
-    var alerted = false;
-    var ralert = function(content, dic){
-        alerted = true;
-        dic = dic || {};
-        $("#overlay").fadeIn(dic.time || 1000);
-        var it = $("<div class='story'></div>").hide();
-        it.append(content);
-        $("body").append(it);
-        if (dic.width)
-            it.css("width",  dic.width);
-        it.css({top : 100,
-                left : (($(window).width() - 
-                        it.outerWidth()) / 2 + 
-                        $(window).scrollLeft())});
-        if (dic["class"])
-            it.addClass(dic["class"]);
-        dic.time  = dic.time || 1500;
-        it.not(":last").fadeIn(dic.time);
-        it.filter(":last").fadeIn(dic.time, dic.callback);
-    };
-
-
-    var unalert = function (time, callback) {
-        alerted = false;
-        $("#overlay").stop().hide();
-        var it = $(".story");
-        it.not(":last").fadeOut(time);
-        it.filter(":last").fadeOut(time, callback);
-    };
-
 
     /** User input: **/
     var canmove = true;
     var move = function(a, d){
         return function () { 
             if (!canmove) return;
+            canmove = false;
             if( !grid.move(a, d) ) {
                 bang(grid.ren, function () {grid.load();
-                                            initialize_render(grid);});
+                                            initialize_render(grid);
+                                            canmove = true;});
                 return;
             }
-            canmove = false;
             render(grid, function () {
-                       if (!can_i_win(grid) && !alerted) {
-                           ralert("Bummer. You now are hopelessly "
-                                  + "stuck. Press spacebar to try "
-                                  + "again.", {time:3000});
+                       if (!can_i_win(grid)) {
+                           tick_bang();
                        }
                        canmove = true;
                    });
@@ -274,6 +249,25 @@ var preload = function () {
                    });
 
 
+    var tick_bang = function (count) {
+        count = count || 10;
+        if (count % 2) {
+            $("#mask").css("background-color", "#FF0000");
+        } else {
+            $("#mask").css("background-color", "#FFFFFF");
+        }
+        setTimeout(function () {
+                       if (count > 1) {
+                           tick_bang(count-1);
+                       } else {
+                           if (!can_i_win(grid)){
+                               $("#mask").css("background-color", "#555555");
+                               bang(grid.ren, function () {grid.load();
+                                                           initialize_render(grid);});
+                           }
+                       }
+                   }, 200);
+    };
 
     var bang = function (ren, continuation){
         $(".ren").remove();

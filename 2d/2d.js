@@ -70,7 +70,7 @@ function () {
     /** User input **/
 
     var move = function(a, d){
-        return function () {grid.move(a, d);};
+        return function () {grid.move(a, d);grid.transitions();};
     };
     var keymap = {37:move("x", -1),   // left
                   38:move("y", -1),   // up
@@ -104,10 +104,10 @@ function () {
 
 
     $("#search").click(function () {
-                           var ret = wander(grid, 1200); 
-//                           grid.tiles[ret[0].ren.x+1][ret[0].ren.y] = {hash:"*"};
+                           var ret = wander(grid); 
+                           console.log(ret, ret.length-1);
+                           grid.tiles[ret[0].ren.x+1][ret[0].ren.y].hash = "*";
                            render(grid);
-//                           console.log(ret, ret.length-1);
                        });
 
     $("#caniwin").click(function () {
@@ -118,11 +118,11 @@ function () {
 
     $("#research").click(function () {
                              var max = -1;
-                             var ret = search(grid, 23); 
-                             while(ret[0][0] > max) {
-                                 max = ret[0][0];
-                                 grid.tiles[ret[0][0]+1][ret[0][1]] = {hash:"*"};
-                                 ret = search(grid, 23); 
+                             var ret = wander(grid); 
+                             while(ret[0].ren.x > max) {
+                                 grid.tiles[ret[0].ren.x+1][ret[0].ren.y].hash = "*";
+                                 grid.load(ret[0].tilemap, ret[0].ren);
+                                 ret = wander(grid); 
                              }
                              render(grid);
 

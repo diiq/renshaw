@@ -290,7 +290,7 @@ var new_grid = function (url, callbacks) {
                                "OSD":"OSR"})},
 
                     "$": {id:"MSAVE", src:"msave.png", step : minor_save},
-                    "*": {id:"SAVE", src:"save.png", step : dingsave},
+                    "*": {id:"SAVE", src:"save.png", otop:-25, oleft:-10, step : dingsave},
                     "_": {id:"SAVED", src:"saved.png", step : save},
 
                     "~": {id:"WATER", src:"water.png", step : no_go}
