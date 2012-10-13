@@ -27,7 +27,6 @@ var preload = function () {
             $("body").append(k.hide());
         }
     }("img/load.gif", "img/bang.png",
-      "img/baobab.png", "img/clockwork.png", "img/clock.png", "img/cclock.png", 
       "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
       "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 
       "img/baobad.png", "img/gdown.png", "img/green.png", "img/grigh.png", 
