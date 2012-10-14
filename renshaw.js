@@ -224,14 +224,24 @@ var new_grid = function (url, callbacks) {
         };
     };
 
-    // TODO memoize to avoid infinite regression? Or change behavior entirely?
-    // If two arrows point to one another, this hangs and then blows the stack.
+    var slide_memo = {};
     var slide = function (axis, dist){
         // Pushes you another step if you step here.
         return function(ren){
+            // Note that this would cause infinite recursion if two arrows
+            // point at one another; therefore, I memoize.
+            var x = ren.x, y = ren.y;
+            if (slide_memo[x] && slide_memo[x][y] === "recursion")
+                                     return false;
+            slide_memo[x] = slide_memo[x] || {}; 
+            slide_memo[x][y] = "recursion";
+
             if (color_step.call(this, ren) && grid.move(axis, dist)) {
-                    return true;
+                delete slide_memo[x][y];
+                return true;
             }
+
+            delete slide_memo[x][y];
             return false;
         };
     };
