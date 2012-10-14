@@ -41,7 +41,6 @@ var new_grid = function (url, callbacks) {
         // and 0 to some height, regardless of xmin and ymin.
         // Consider: isthis the place to add content loading?
 
-        console.log(xmax);
         var i, j, ret = [];
         for(i=xmax-1; i>=Math.max(xmin, 0); i--){
             // this one goes backwards for rendering convenience.
@@ -61,23 +60,40 @@ var new_grid = function (url, callbacks) {
     };
 
 
-    var save = function (ren) {
+    grid.save = function (fake) {
         var s = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
         grid.saved = s;
-        return s;
+        // Long term save:
+        if (!fake){
+            var tm = {};
+            for (var ch in grid.tilemap){
+                tm[grid.tilemap[ch].id] = ch;
+            }
+            localStorage.saved_game = JSON.stringify([tm, s[1]]);
+        }
+       return s;
     };
 
-    grid.save = save;
 
     grid.load = function(tilemap, ren){
         if (tilemap && ren) {
             grid.tilemap = copy_obj(tilemap);
             grid.ren = copy_obj(ren);
         } else {
-            var s = grid.saved;
+            var s =  grid.saved;
             if(s) {
                 grid.tilemap = copy_obj(s[0]);
                 grid.ren = copy_obj(s[1]);
+            } else if (localStorage.saved_game){
+                console.log("here");
+                s = JSON.parse(localStorage.saved_game);
+                grid.ren = s[1];
+                var newtm = {};
+                for (var ch in grid.tilemap){
+                    newtm[s[0][grid.tilemap[ch].id]] = grid.tilemap[ch];
+                }
+                grid.tilemap = newtm;
+                console.log(newtm);
             }
         }
     };
@@ -186,7 +202,7 @@ var new_grid = function (url, callbacks) {
 
     var dingsave = function (ren, fake) {
         if (!fake) {
-            save();
+            grid.save();
             transitions.push(function(){
                                  if (callbacks.ding)
                                      callbacks.ding(count);
@@ -390,7 +406,5 @@ var new_grid = function (url, callbacks) {
                      //3:[{src:"clockwork.png", x:66, y:2, offset:[-50, -235]}]
     };
 
-    grid.saved = [];
-    grid.save();
-    return grid;
+   return grid;
 }

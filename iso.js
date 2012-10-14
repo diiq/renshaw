@@ -26,7 +26,7 @@ var preload = function () {
             preloaded[arguments[i]] = k.clone();
             $("body").append(k.hide());
         }
-    }("img/load.gif", "img/bang.png",
+    }("img/load.gif", "img/bang.png", "img/clock.png", "img/cclock.png",
       "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
       "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 
       "img/gdown.png", "img/green.png", "img/grigh.png", 
@@ -205,26 +205,31 @@ var preload = function () {
     var render_motion = function (grid, continuation) {
         // If we haven't moved forward or backward, just redraw Ren; 
         // otherwise, you'll have to draw everything.
+        continuation = render_transitions(grid, continuation);
+        
         shift_background(grid.ren);
 
         var buffer = $("<div></div>");
         if (grid.ren.x !== grid.ren.prev.x) { // x motion moves the grid
             var xmove = (grid.ren.x-grid.ren.prev.x);
             var sign = xmove/Math.abs(xmove);
-            for(var i = 0; i<xmove*sign; i++){
+
+            for(var i = 0; i<xmove*sign-1; i++){
                 $("#grid").animate({top: '-='+sign*x_magic[1],
                                     left: '-='+sign*x_magic[0]
                                    }, {duration:step_speed, complete:function () {
                                            render_new_row(grid, $("#grid"), sign);
                                        }});
             }
+            $("#grid").animate({top: '-='+sign*x_magic[1],
+                                left: '-='+sign*x_magic[0]
+                               }, {duration:step_speed, complete:function () {
+                                       render_new_row(grid, $("#grid"), sign);
+                                       continuation();
+                                   }});
 
-            continuation = render_transitions(grid, continuation);
-            shift_ren(grid.ren, continuation);
-
-        } 
-        if (grid.ren.y !== grid.ren.prev.y){
-            continuation = render_transitions(grid, continuation);
+            shift_ren(grid.ren);
+        } else {
             shift_ren(grid.ren, continuation);
         }
     };
@@ -308,10 +313,19 @@ var preload = function () {
     $(window).load(
         function(){
             $("#limg").hide();
-            $("#start").fadeIn();
+            var mesg;
+            if (localStorage.saved_game) {
+                mesg = "Press N for New Game | Press Space to Resume" ;
+            } else {
+                mesg = "Press Space to Begin";
+            }
+            $("#start").html(mesg).fadeIn();
             $("body").keydown(
                 function (e) {
                     if(e.which === 32) {
+                        grid.load();
+                    } if (e.which === 32 || e.which === 78) {
+                        grid.save();
                         $("#overlay").fadeOut();
                         $("#loader").fadeOut();
                         $("body").keydown(function (e) {

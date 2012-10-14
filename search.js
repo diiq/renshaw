@@ -112,7 +112,7 @@ var search = function (grid, termination, score_cmp, escape) {
     var step = function (s, mv) {
         grid.load(s.tilemap, s.ren);
         if (grid.move.apply({}, mv)){
-            var ps = grid.save();
+            var ps = grid.save(true);
             return deeper({tilemap:ps[0], ren:ps[1], depth:s.depth+1});
         };
         return false;
