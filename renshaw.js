@@ -164,7 +164,8 @@ var new_grid = function (url, callbacks) {
         grid.ren[axis] += dist;
         if (ren.x < 0 || ren.x >= width ||
             ren.y < 0 || ren.y >= height ||
-            !real_tile(grid.tiles[ren.x][ren.y]).step(ren, fake)) {
+            // Okay, I'm sorry for this one. Mea Culpa. Disculpe.
+            !grid.tilemap[grid.tiles[ren.x][ren.y].hash].step(ren, fake)) {
             ren.x = prev.x; ren.y = prev.y;
             return false;
         }
