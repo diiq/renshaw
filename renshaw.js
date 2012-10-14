@@ -64,6 +64,7 @@ var new_grid = function (url, callbacks) {
 
     // Ren is the player character; he changes color, so he's got multiple sources.
     grid.ren = {x:0, y:3, 
+                offset: {l:4, t:-95},
                 src:{white:"wren.png", green:"gren.png", orang:"oren.png"},
                 color : "white",
                 prev:{x:0, y:3}};

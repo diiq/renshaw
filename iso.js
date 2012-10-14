@@ -1,50 +1,22 @@
-var preloaded = {};
-
 $(document).ready(
 function () {
 
-    /* This file provides the 2.5D UI for Renshaw's Disco.
-
-     API: render(game)
-
-     Where game is an object:
-     ren is a player object
-     A player object must have .x and .y integer coords.
-     map, a function that applies a function to each elt in game grid.
-     signature:   game.map ( function (x, y, tile) )
-
+    /* This file contains the 3-ishD UI for Renshaw's Disco.  Perhaps
+     * start from the bottom and read upwards? C-s START, emacs
+     * users. I don't have many reccommendations for making this one
+     * easier. DOM manipulation is gross, sometimes. Like kissing. Or
+     * eating frog guts.
      */
 
-
-var preload = function () {
-        var j, k;
-        for(var i =0; i<arguments.length; i++){
-            j = new Image();
-            j.src = arguments[i];
-            k = $("<img>");
-            k.attr("src", arguments[i]);
-            preloaded[arguments[i]] = k.clone();
-            $("body").append(k.hide());
-        }
-    }("img/load.gif", "img/bang.png", "img/clock.png", "img/cclock.png",
-      "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
-      "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 
-      "img/gdown.png", "img/green.png", "img/grigh.png", 
-      "img/odown.png", "img/oleft.png", "img/origh.png", "img/oupup.png",
-      "img/gwchange.png", "img/save.png", "img/saved.png", "img/waterb.png", 
-      "img/wdown.png", "img/white.png", "img/wren.png", "img/wupup.png", 
-      "img/orang.png", "img/oren.png", "img/owchange.png", "img/wochange.png", 
-      "img/gochange.png", "img/ogchange.png", "img/goswap.png", "img/owswap.png");
-    
     var
-    width = 24,    // in view at one time
-    height = 7,
-    x_magic = [-50, -27],  // magic #s are offsets for isometric grid tiles
+    width = 24,    // the number of rows in view at one time
+    height = 7,    // the number of tiles per row
+    x_magic = [-50, -27],  // these magic #s are offsets for isometric grid tiles
     y_magic = [-66, 7],
-    max_left = -((width-4)*x_magic[0]),  // offset for the whole grid
+    max_left = -((width-4)*x_magic[0]),  // an offset for the whole grid
     max_top = -((width-1)*x_magic[1]+(height)*y_magic[1]),
-    step_speed = 125,
-    transition_speed = 150;
+    step_speed = 125,  // Time, in ms, to take a single step.
+    transition_speed = 150; // Time, in ms, to animate a transition.    
 
 
     var grid_left = function(x, y){
@@ -54,7 +26,8 @@ var preload = function () {
         return max_top+(y*y_magic[1]+x*x_magic[1]);
     };
 
-    var ding = function (i) {
+    var ding = function (i) { 
+        // Goes ding when there's stuff.
         $("#ding").get(0).play();
         $("#rewards").append("<div class='reward'>"+i+"</div>");
     };
@@ -64,7 +37,7 @@ var preload = function () {
 
 
     /** Rendering **/
-    // Dups! Fix yo'sel!    
+
     var render_obj = function (buffer, x, y, ol, ot, cls, src) {
         if(!preloaded["img/"+src]) console.log(src);
         var $obj = preloaded["img/"+src].clone();
@@ -77,16 +50,19 @@ var preload = function () {
     };
 
 
+    // These singular rendering functions wrap an (x, y, tile), which
+    // can be given to map, with a buffer, so that rendering can be
+    // done to a hidden box or to the live one.
     var render_tile = function (buffer) {
         return function (x, y, tile){
             render_obj(buffer, x, y, tile.oleft || 0, tile.otop || 0, "tile", tile.src);
         };
     };
 
+    // The plural functions do the actual rendering, via map.
     var render_tiles = function(grid, buffer) {
-            grid.real_map(render_tile(buffer), 
-                          grid.ren.x-width/2+2, 
-                          grid.ren.x+width/2+2);
+        grid.real_map(render_tile(buffer), 
+                      grid.ren.x-width/2+2, grid.ren.x+width/2+2);
     };
 
 
@@ -98,8 +74,7 @@ var preload = function () {
 
     var render_specials = function (grid, buffer) {
         grid.map_specials(render_special(buffer), 
-                          grid.ren.x-width/2+2, 
-                          grid.ren.x+width/2+2);
+                          grid.ren.x-width/2+2, grid.ren.x+width/2+2);
     };
 
 
@@ -107,16 +82,20 @@ var preload = function () {
         render_obj(buffer, 10, ren.y, 4, -95, "ren", ren.src[ren.color]);
     };
 
+    // If the player character doesn't change color, there's no need to re-render;
+    // we can just move it.
     var shift_ren = function(ren, continuation) {
         var x = 10, y = ren.y;
         $(".ren").animate(
-            {left: max_left+(y*y_magic[0]+x*x_magic[0])+4+"px",
-             top:  max_top+(y*y_magic[1]+x*x_magic[1])+-95+"px"},
+            {left: grid_left(x, y) + ren.offset.l + "px",
+             top:  grid_top(x, y)  + ren.offset.t + "px"},
             {duration:step_speed, complete:continuation});
     };
 
 
     var shift_background = function (ren){
+        // Shift the background to move in sync with the grid.
+        // This goes funky on IE; I don't know why. TODO
         $("#mask").animate({'background-position-x':  -ren.x*x_magic[0],
                             'background-position-y': -ren.x*x_magic[1]}, 
                            {duration: step_speed, 
@@ -130,8 +109,16 @@ var preload = function () {
     
 
     var render_transitions = function (grid, continuation) {
-        // Todo, render ren-transitions separately.
+        // Sometimes, the whole grid has to change at once: a transition;
+        // These are rendered in a separate box, and then faded into place.
+        // This is important, so that the player has time to grok what's changed.
+        // TODO, render ren-transitions separately.
         if (grid.transition()) {
+            // This returns a function because the transitions themselves must
+            // occur INSTANTLY, or else the player can sneak in an extra move.
+            // The rendering *of* the transitions must occur slowly (see above)
+            // So this enacts the transitions, but returns a function to render them
+            // later.
             return function () {
                 var buffer = $("<div id='bgrid'></div>").hide();
                 render_tiles(grid, buffer);
@@ -148,7 +135,6 @@ var preload = function () {
                                   
                                   continuation();
                               });
-                
             };
         } else {
             return continuation;
@@ -157,6 +143,8 @@ var preload = function () {
     };
 
     var initialize_render = function (grid) {
+        // The first time to render, no clever shortcuts: everything must
+        // be placed. Also useful for big instant changes, like a restore-from-save.
         var buffer = $("<div></div>");
         $(".ren").remove();
         
@@ -170,8 +158,10 @@ var preload = function () {
         $("#grid").append(buffer.contents());
     };
 
-    var deep = -1;
+    var deep = -1; // Sloppy; TODO
     var render_new_row = function (grid, buffer, direction){
+        // This adds just one row to the current grid, to save rendering time
+        // when no transitions are present. Purely an optimization for speed.
         var ol = parseInt(buffer.css('left'));
         var ot = parseInt(buffer.css('top'));
 
@@ -202,18 +192,25 @@ var preload = function () {
         deep--;
     };
 
-    var render_motion = function (grid, continuation) {
-        // If we haven't moved forward or backward, just redraw Ren; 
-        // otherwise, you'll have to draw everything.
+    var render = function (grid, continuation) {
+        // If we haven't moved forward or backward, we can just move Ren; 
+        // otherwise, you'll have to move the whole grid. If there are 
+        // transitions, inact them first, but render them afterwards.
         continuation = render_transitions(grid, continuation);
         
         shift_background(grid.ren);
 
         var buffer = $("<div></div>");
-        if (grid.ren.x !== grid.ren.prev.x) { // x motion moves the grid
+        if (grid.ren.x == grid.ren.prev.x) { // motion in y just moves ren
+
+            shift_ren(grid.ren, continuation);
+
+        } else {                             // motion in x moves the grid.
+
             var xmove = (grid.ren.x-grid.ren.prev.x);
             var sign = xmove/Math.abs(xmove);
 
+            // Move just one row at a time, in x.
             for(var i = 0; i<xmove*sign-1; i++){
                 $("#grid").animate({top: '-='+sign*x_magic[1],
                                     left: '-='+sign*x_magic[0]
@@ -228,18 +225,15 @@ var preload = function () {
                                        continuation();
                                    }});
 
-            shift_ren(grid.ren);
-        } else {
-            shift_ren(grid.ren, continuation);
+            shift_ren(grid.ren); // Motion in x may take longer, 
+                                 // so the continuation must be done there.
         }
-    };
-
-    var render = function (grid, continuation) {
-        render_motion(grid, continuation); 
     };
 
 
     var tick_bang = function (count) {
+        // If you've gotten stuck, tick_bang takes a few seconds to sympathize
+        // before killing you dead.
         count = count || 10;
         $("#impossible").show().css('left', ($(window).width() - 
                                              $("#impossible").outerWidth()) / 2);
@@ -263,8 +257,9 @@ var preload = function () {
     };
 
     var bang = function (ren, continuation){
+        // Bang kills you dead, by rendering a lightning flash
+        // and playing a peal of thunder.
         $(".ren").remove();
-//        $("#bang").get(0).();
         $("#bang").get(0).play();
         var a = $("<img src='img/bang.png'>")
             .addClass("bang")
@@ -279,25 +274,29 @@ var preload = function () {
 
 
     /** User input: **/
+
     var canmove = true;
-    var move = function(a, d){
+    var move = function(a, d){ // Move rets a function closing axis & direction.
         return function () { 
+            // Don't let the player move until previous move is complete.
             if (!canmove) return;
             canmove = false;
-            if( !grid.move(a, d) ) {
+
+            if( !grid.move(a, d) ) {  // If the move fails, kill'em.
                 bang(grid.ren, function () {grid.load();
                                             initialize_render(grid);
                                             canmove = true;});
                 return;
             }
             render(grid, function () {
-                       if (!can_i_win(grid)) {
+                       if (!can_i_win(grid)) { // If they're stuck, kill'em.
                            tick_bang();
                        }
                        canmove = true;
                    });
         };
     };
+
     var keymap = {37:move("y",  1),   // left
                   38:move("x",  1),   // up
                   39:move("y", -1),   // right
@@ -308,11 +307,16 @@ var preload = function () {
                  };
 
 
-    $("#impossible").hide();    
-    $("#start").hide();
+
+    /** START HERE Initially, do these things **/
+
+    $("#impossible").hide(); // hide the stuck message
+    $("#start").hide();      // and the "press space to begin" message
+
     $(window).load(
         function(){
-            $("#limg").hide();
+            $("#limg").hide(); // hide the loading gif
+
             var mesg;
             if (localStorage.saved_game) {
                 mesg = "Press N for New Game | Press Space to Resume" ;
@@ -320,23 +324,55 @@ var preload = function () {
                 mesg = "Press Space to Begin";
             }
             $("#start").html(mesg).fadeIn();
+
             $("body").keydown(
                 function (e) {
-                    if(e.which === 32) {
+                    if(e.which === 32) { // Resume game
                         grid.load();
                     } if (e.which === 32 || e.which === 78) {
                         grid.save();
                         $("#overlay").fadeOut();
                         $("#loader").fadeOut();
+
+                        // Attach default keymap.
                         $("body").keydown(function (e) {
                                               if (keymap[e.which]) {
                                                   keymap[e.which]();
                                               }
                                           });
+
                         initialize_render(grid);
                     }
-                }
-            );
+                });
         });
+
+
+
+    /** Preload some images. Eventually, it'll be best to just cram these into
+     *  the main HTML page. **/
+
+    var preloaded = {};
+    (function () {
+        var j, k;
+        for(var i =0; i<arguments.length; i++){
+            j = new Image();
+            j.src = arguments[i];
+            k = $("<img>");
+            k.attr("src", arguments[i]);
+            preloaded[arguments[i]] = k.clone();
+            $("body").append(k.hide());
+        }
+    }("img/load.gif", "img/bang.png", "img/clock.png", "img/cclock.png",
+      "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
+      "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 
+      "img/gdown.png", "img/green.png", "img/grigh.png", 
+      "img/odown.png", "img/oleft.png", "img/origh.png", "img/oupup.png",
+      "img/gwchange.png", "img/save.png", "img/saved.png", "img/waterb.png", 
+      "img/wdown.png", "img/white.png", "img/wren.png", "img/wupup.png", 
+      "img/orang.png", "img/oren.png", "img/owchange.png", "img/wochange.png", 
+      "img/gochange.png", "img/ogchange.png", "img/goswap.png", "img/owswap.png"));
+
+    
+
 });
 
