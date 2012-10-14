@@ -70,7 +70,7 @@ function () {
     /** User input **/
 
     var move = function(a, d){
-        return function () {grid.move(a, d);grid.transitions();};
+        return function () {grid.move(a, d);grid.transition();};
     };
     var keymap = {37:move("x", -1),   // left
                   38:move("y", -1),   // up
