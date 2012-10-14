@@ -1,18 +1,61 @@
-/* This file defines the methods of game objects:
-
-move(direction, distance); axis is 'x' or 'y', distance 1 or -1
-map(function(x, y, tile); applies a function to every tile in grid
-realmap applies a function to every mapped tile;
-
-window_realmap(f, xmin, xmax, ymin, ymax) applies a function to every
-tile in a window -- and x, y, ARE SHRUNK TO THAT DOMAIN; so when the
-real x == xmin, it will be sent to f as 0.
-
-Tiles provide functions for when they're stepped on.
-
-There will also be special objects; this is not yet implemented.
-
-*/
+/* This file defines the game-logic of Renshaw's Disco. 
+ * There are four important data structures:
+ *     grid.tiles --- a 2D array of objects; each has a .hash member, 
+ *                    which refers *indirectly* to a tile object.
+ *     grid.tilemap - the mapping from hash to tile objects. Altering the tilemap
+ *                    alters every tile in the grid -- this is how transitions such as
+ *                    green/white swaps and arrow rotations are accomplished.
+ *     grid.ren ----- an object representing the player character; has position
+ *                    (.x, .y), a previous position (.prev), 
+ *                    a color (the player can change color) and 
+ *                    img sources (as a dictionary, by color).  
+ *     grid.specials  an array, indexed by blocks of adjacent x-rows, of 
+ *                    tile-like objects. These are one-offs, for special effects.
+ * 
+ *     Tile objects include an id, an img source, and a function to be called if the
+ *     player steps on that tile.
+ * 
+ * Important methods of grid include: 
+ * 
+ *     map(function, xmin, xmax, ymin, ymax), 
+ *         which maps a function across tiles in grid.tiles in a given range. 
+ *         all args bu function are optional.
+ * 
+ *     real_map(function, xmin, xmax, ymin, ymax), 
+ *         which maps a function across tiles, after they are converted to tile objects
+ *         all args but function are optional.
+ * 
+ *     map_specials(function, xmin, xmax),
+ *         which maps a function across the special tiles in a given range.
+ *  
+ *     save(fake),
+ *         which permanently saves the current game state (temporarily, if fake is true)
+ * 
+ *     load(tilemap, ren)
+ *         which loads a game. Both arguments are optional; loads from save w/ no args.
+ * 
+ *     move(axis, dist, fake)
+ *         which represents a player movement; axis is "x" or "y" and distance is 
+ *         usually 1 or -1. Returns false if movement is disallowed. If fake is true, 
+ *         all transitions caused by the movement are enacted *immediately*; otherwise,
+ *         they are postponed until transition() is called.
+ * 
+ *     transition()
+ *         which enacts all postponed transitions. These are usually changes to the 
+ *         tilemap, or alterations to ren. Returns false if none waiting.
+ * 
+ *     xport() and mport(s), which produce and read grid.tiles to and a string
+ * 
+ *     random_fill(width, height, set)
+ *         which creates a new grid filled with random tiles, hashes 
+ *         chosen from the list 'set'
+ * 
+ *     This should be UI neutral, but you will have to pass in two externalities 
+ *     when making a new grid;  a url from which to load an mport, 
+ *     and an object of callbacks, currently only containing 'ding', a function to 
+ *     perform on 'save', because it was easier that way. Pooh.
+ *  
+ * */
 
 
 var new_grid = function (url, callbacks) {
@@ -25,25 +68,19 @@ var new_grid = function (url, callbacks) {
                 color : "white",
                 prev:{x:0, y:3}};
 
-    var real_tile = function (tile) {
-    // Acceptable architectural artifact.
-        return grid.tilemap[tile.hash];
-    };
 
 
     grid.map = function (f, xmin, xmax, ymin, ymax) {
-        // Silently ignore values outside domain.
+        // Silently ignores values outside domain.
         xmin = xmin || 0; 
         ymin = ymin || 0;
         xmax = (xmax === undefined) ? width : Math.min(xmax, width); 
         ymax = (ymax === undefined) ? height : Math.min(ymax, height);
         // f still sees this as running from 0 to some width, 
         // and 0 to some height, regardless of xmin and ymin.
-        // Consider: isthis the place to add content loading?
-
         var i, j, ret = [];
         for(i=xmax-1; i>=Math.max(xmin, 0); i--){
-            // this one goes backwards for rendering convenience.
+            // This one goes backwards sheerly for rendering convenience.
             ret[i-xmin] = [];
             for(j=Math.max(ymin, 0); j<ymax; j++){
                 ret[i-xmin][j-ymin] = f(i-xmin, j-ymin, grid.tiles[i][j], i, j);
@@ -52,19 +89,20 @@ var new_grid = function (url, callbacks) {
         return ret;
     };
 
-    // This one passes the actual tile
     grid.real_map = function (f, xmin, xmax, ymin, ymax) {
         return grid.map(function (i, j, tile, ri, rj){
-                            f(i, j, real_tile(tile), ri, rj);
+                            f(i, j, grid.tilemap[tile.hash], ri, rj);
                         }, xmin, xmax, ymin, ymax);
     };
+
 
 
     grid.save = function (fake) {
         var s = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
         grid.saved = s;
-        // Long term save:
+        // Long term save uses localStorage. Fails in IE7.
         if (!fake){
+            // To safely stringify the tilemap, convert to id/hash pairs.
             var tm = {};
             for (var ch in grid.tilemap){
                 tm[grid.tilemap[ch].id] = ch;
@@ -73,7 +111,6 @@ var new_grid = function (url, callbacks) {
         }
        return s;
     };
-
 
     grid.load = function(tilemap, ren){
         if (tilemap && ren) {
@@ -85,10 +122,10 @@ var new_grid = function (url, callbacks) {
                 grid.tilemap = copy_obj(s[0]);
                 grid.ren = copy_obj(s[1]);
             } else if (localStorage.saved_game){
-                console.log("here");
                 s = JSON.parse(localStorage.saved_game);
                 grid.ren = s[1];
                 var newtm = {};
+                // Convert back from hash/id pairs.
                 for (var ch in grid.tilemap){
                     newtm[s[0][grid.tilemap[ch].id]] = grid.tilemap[ch];
                 }
@@ -97,6 +134,7 @@ var new_grid = function (url, callbacks) {
             }
         }
     };
+
 
 
     // This is a count of steps since last * checkpoint.
@@ -117,7 +155,8 @@ var new_grid = function (url, callbacks) {
     };
 
     grid.move = function (axis, dist, fake) {
-        // Move ren, call tile stepped on.
+        // Move ren, call tile stepped on. Return false if move can't be made.
+        // Checks for falling off, then calls the given tile's step method.
         if (!fake) count++;
         var ren = grid.ren;
         var prev = {x:ren.x, y:ren.y};
@@ -134,14 +173,18 @@ var new_grid = function (url, callbacks) {
         return true;
     };
 
+
+
     /** These are tile stepping-upon functions. They return true if
      * ren moves, and false if ren may not move there. **/
 
-    var no_go = function (ren) {
+    var no_go = function (ren) { 
+        // Can't step here.
         return false;
     };
 
-    var color_step = function (ren) {
+    var color_step = function (ren) { 
+        // Step here only if you're the right color.
         if(ren.color !== this.color){
             return false;
         }
@@ -149,6 +192,7 @@ var new_grid = function (url, callbacks) {
     };
 
     var color_change = function (color) {
+        // Changes your color if you step here, to color.
         return function (ren) {
             if (color_step.call(this, ren)) {
                 transitions.push(function () {
@@ -161,24 +205,28 @@ var new_grid = function (url, callbacks) {
     };
 
     var map_swap = function (a){
+        // Switches around the tilemap; takes a dictionary of ids to swap.
         return function (ren){
-            transitions.push(function () {
-                                 var ids = {};
-                                 for(tile in grid.tilemap){
-                                     ids[grid.tilemap[tile].id] = grid.tilemap[tile];
-                                 }
-                                 for(tile in grid.tilemap){
-                                     if (a[grid.tilemap[tile].id]) {
-                                         grid.tilemap[tile] = ids[a[grid.tilemap[tile].id]];
-                                     }
-                                 }
-                             });
+            transitions.push(
+                function () {
+                    var ids = {};
+                    for(tile in grid.tilemap){
+                        ids[grid.tilemap[tile].id] = grid.tilemap[tile];
+                    }
+                    for(tile in grid.tilemap){
+                        if (a[grid.tilemap[tile].id]) {
+                            grid.tilemap[tile] = ids[a[grid.tilemap[tile].id]];
+                        }
+                    }
+                });
             return true;
         };
     };
 
     // TODO memoize to avoid infinite regression? Or change behavior entirely?
+    // If two arrows point to one another, this hangs and then blows the stack.
     var slide = function (axis, dist){
+        // Pushes you another step if you step here.
         return function(ren){
             if (color_step.call(this, ren) && grid.move(axis, dist)) {
                     return true;
@@ -188,19 +236,21 @@ var new_grid = function (url, callbacks) {
     };
 
     var minor_save = function (ren) {
+        // You can teleport to this spot if you step here. 
         grid.minor_saved = [ren.x, ren.y];
         return true;
     };
 
     grid.minor_load = function(){
+        // Teleport back to that spot (minor_save)
         if (grid.minor_saved){
             grid.ren.x = grid.minor_saved[0];
             grid.ren.y = grid.minor_saved[1];
         }
     };
 
-
     var dingsave = function (ren, fake) {
+        // A checkpoint; saves your game and goes 'ding'
         if (!fake) {
             grid.save();
             transitions.push(function(){
@@ -212,6 +262,8 @@ var new_grid = function (url, callbacks) {
         }
         return true;
     };
+
+
 
     /** The default tile mapping **/
 
@@ -316,6 +368,8 @@ var new_grid = function (url, callbacks) {
 
                    };
 
+
+
     /** Special Tiles **/
     
     // These are tiles that are rendered atop the mapped grid; they
@@ -323,6 +377,9 @@ var new_grid = function (url, callbacks) {
     // time will I need to ask about more than two blocks. 
 
     grid.map_specials = function (f, xmin, xmax) {
+        // Map across specials. Assumes that the range is only one screenful.
+        // A screenful is hard-coded at 22, at the moment, which is SILLY.
+        // TODO: fix this.
         var i,
         loblock = grid.specials[Math.floor(Math.max(xmin, 0) / 22)],
         hiblock = grid.specials[Math.floor(Math.min(xmax, width) / 22)];
@@ -337,6 +394,8 @@ var new_grid = function (url, callbacks) {
                     f(hiblock[i].x-xmin, hiblock[i].y, hiblock[i]);
             };
     };
+
+
 
     /** Saving and loading a game grid **/
 
@@ -379,7 +438,6 @@ var new_grid = function (url, callbacks) {
     grid.random_fill = function (w, h, set) {
         // This doesn't really belong here, but it will fill up with random tiles.
         // Set is a string of hashes: "ABCDE"
-       // console.log(set);
         var i, j, ret=[];
         width = w; height = h;
         for(i=0; i<width; i++){
@@ -392,6 +450,8 @@ var new_grid = function (url, callbacks) {
     };
 
     grid.add_row = function () {
+        // Adds a row to tiles. Used for the level editor; 
+        // could be removed from release.
         grid.tiles[grid.tiles.length] = $.extend(true, [], grid.tiles[grid.tiles.length-1]); 
         width++;
     };
@@ -407,4 +467,4 @@ var new_grid = function (url, callbacks) {
     };
 
    return grid;
-}
+};
