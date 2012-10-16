@@ -32,7 +32,7 @@ function () {
         $("#rewards").append("<div class='reward'>"+i+"</div>");
     };
 
-    var grid = new_grid(window.location.hash.slice(1) || "level1.ren", 
+    var grid = new_grid(window.location.hash.slice(1) || "forealz.ren", 
                        {ding:ding});
 
 
