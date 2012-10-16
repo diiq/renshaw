@@ -54,6 +54,8 @@
  *     when making a new grid;  a url from which to load an mport, 
  *     and an object of callbacks, currently only containing 'ding', a function to 
  *     perform on 'save', because it was easier that way. Pooh.
+ * 
+ *     It's mostly general, but a few tricks will fail when ymax > 10; they are noted. 
  *  
  * */
 
@@ -97,18 +99,31 @@ var new_grid = function (url, callbacks) {
     };
 
 
+    var brief_tilemap = function(tilemap) {
+        // A shortened, stringifyiable version of the tilemap
+        tilemap = tilemap || grid.tilemap;
+        var tm = {};
+        for (var ch in tilemap){
+            tm[tilemap[ch].id] = ch;
+        }
+        return tm;
+    };
+
+    var unbrief_tilemap = function(tm) {
+        // Reverse the process of brief_tilemap
+        var tilemap = {};
+        for (var ch in grid.tilemap){
+            tilemap[tm[grid.tilemap[ch].id]] = grid.tilemap[ch];
+        }
+        return tilemap;
+    };
 
     grid.save = function (fake) {
         var s = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
         grid.saved = s;
         // Long term save uses localStorage. Fails in IE7.
         if (!fake){
-            // To safely stringify the tilemap, convert to id/hash pairs.
-            var tm = {};
-            for (var ch in grid.tilemap){
-                tm[grid.tilemap[ch].id] = ch;
-            }
-            localStorage.saved_game = JSON.stringify([tm, s[1]]);
+            localStorage.saved_game = JSON.stringify([brief_tilemap(s[0]), s[1]]);
         }
        return s;
     };
@@ -125,13 +140,7 @@ var new_grid = function (url, callbacks) {
             } else if (localStorage.saved_game){
                 s = JSON.parse(localStorage.saved_game);
                 grid.ren = s[1];
-                var newtm = {};
-                // Convert back from hash/id pairs.
-                for (var ch in grid.tilemap){
-                    newtm[s[0][grid.tilemap[ch].id]] = grid.tilemap[ch];
-                }
-                grid.tilemap = newtm;
-                console.log(newtm);
+                grid.tilemap = unbrief_tilemap(s[0]);
             }
         }
     };
@@ -231,18 +240,17 @@ var new_grid = function (url, callbacks) {
         return function(ren){
             // Note that this would cause infinite recursion if two arrows
             // point at one another; therefore, I memoize.
-            var x = ren.x, y = ren.y;
-            if (slide_memo[x] && slide_memo[x][y] === "recursion")
+            var adr = "" + ren.x + ren.y; // fails when ymax > 10.
+            if (slide_memo[adr] === "recursion")
                                      return false;
-            slide_memo[x] = slide_memo[x] || {}; 
-            slide_memo[x][y] = "recursion";
+            slide_memo[adr] = "recursion";
 
             if (color_step.call(this, ren) && grid.move(axis, dist)) {
-                delete slide_memo[x][y];
+                delete slide_memo[adr];
                 return true;
             }
 
-            delete slide_memo[x][y];
+            delete slide_memo[adr];
             return false;
         };
     };
@@ -261,15 +269,23 @@ var new_grid = function (url, callbacks) {
         }
     };
 
+    var save_squares = {};
     var dingsave = function (ren, fake) {
         // A checkpoint; saves your game and goes 'ding'
         if (!fake) {
-            grid.save();
+            grid.tiles[ren.x][ren.y].hash = "_";
+            if (!save_squares["" + ren.x + ren.y]){
+                save_squares["" + ren.x + ren.y] = 
+                    {color:ren.color, tilemap:brief_tilemap(grid.tilemap)};
+            }
             transitions.push(function(){
                                  if (callbacks.ding)
                                      callbacks.ding(count);
                                  count = 0;
                                  grid.tiles[ren.x][ren.y].hash = "_";
+                                 ren.color = save_squares["" + ren.x + ren.y].color;
+                                 grid.tilemap = unbrief_tilemap(save_squares["" + ren.x + ren.y].tilemap);
+                                 grid.save();
                              });
         }
         return true;
@@ -416,14 +432,16 @@ var new_grid = function (url, callbacks) {
         for(i =0; i<width; i++){
             for(j =0; j<height; j++){
                 rs[j] = grid.tiles[i][j].hash;
+                rs[j] = rs[j] == "_" ? "*" : rs[j]; 
             }
             ret[i] = rs.join(""); 
         }
-        return ret.join("\n");
+        return JSON.stringify({grid: ret.join(":"), save_squares:save_squares});
     };
 
     grid.mport = function (save) {///gardening here TODO
-        var i, j, cols = save.split("\n");
+        save_squares = save.save_squares;
+        var i, j, cols = save.grid.split(":");
         width = cols.length;
         grid.tiles = [];
         for(i=0; i<width; i++){
@@ -472,7 +490,7 @@ var new_grid = function (url, callbacks) {
 
     /** Load 'er up! **/
 
-    $.ajax({url:url, dataType:"text", async:false, success:grid.mport});
+    $.ajax({url:url, dataType:"json", async:false, success:grid.mport});
     grid.specials = {//3:[{src:"baobad.png", x:66, y:2, offset:[-95, -287]}],
                      //3:[{src:"baobab.png", x:66, y:2, offset:[-110, -370]}]
                      //3:[{src:"clockwork.png", x:66, y:2, offset:[-50, -235]}]
