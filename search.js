@@ -38,7 +38,7 @@ var wander = function (grid, depth) {
     return search(grid, term, cmp);
 };
 
-var can_i_win = function (grid, depth) {
+var can_i_win = function (grid) {
     var term = function (s) {
         return false;
     };
@@ -49,7 +49,7 @@ var can_i_win = function (grid, depth) {
     var time = d.getTime();
     var esc = function(s){
         var d = new Date();
-        if (d.getTime() - 8 > time) {
+        if (d.getTime() - 16 > time) {
         //            console.log("hoo");
             return true;
         }
@@ -143,6 +143,7 @@ var search = function (grid, termination, score_cmp, escape) {
     };
     
     var s0 = {tilemap:grid.tilemap, ren:grid.ren, depth:0};
+
     var ret = deeper(s0);  
     
     // TODO preserve grid state before running
