@@ -9,7 +9,8 @@ function () {
     var 
     twidth = 25,
     theight = 25,
-    grid = new_grid("../level1.ren", {ding:function(){$("#ding").get(0).play();}}),
+    grid = new_grid(window.location.hash.slice(1) || "../level1.ren", 
+                    {ding:function(){$("#ding").get(0).play();}}),
     current = "A";
 
     var pallete = function () {
