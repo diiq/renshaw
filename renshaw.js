@@ -237,7 +237,7 @@ var new_grid = function (url, callbacks) {
     var slide_memo = {};
     var slide = function (axis, dist){
         // Pushes you another step if you step here.
-        return function(ren){
+        return function(ren, fake){
             // Note that this would cause infinite recursion if two arrows
             // point at one another; therefore, I memoize.
             var adr = "" + ren.x + ren.y; // fails when ymax > 10.
@@ -245,7 +245,7 @@ var new_grid = function (url, callbacks) {
                                      return false;
             slide_memo[adr] = "recursion";
 
-            if (color_step.call(this, ren) && grid.move(axis, dist)) {
+            if (color_step.call(this, ren, fake) && grid.move(axis, dist, fake)) {
                 delete slide_memo[adr];
                 return true;
             }
