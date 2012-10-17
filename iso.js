@@ -37,7 +37,7 @@ function () {
                        {ding:ding});
     actors = {ren:new Actor(0, 3, "white", 
                             {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
-                            {l:4, t:-95}, true)};
+                            {l:4, t:-95}, "player")};
 
     /** Rendering **/
 

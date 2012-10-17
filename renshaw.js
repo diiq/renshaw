@@ -58,6 +58,8 @@
  *     It's mostly general, but a few tricks will fail when ymax > 10; they are noted. 
  *  
  * */
+
+
 var brief_tilemap = function(tilemap) {
     // A shortened, stringifyiable version of the tilemap
     tilemap = tilemap || grid.tilemap;
@@ -87,7 +89,11 @@ var copy_obj = function (obj){
     return ret;
 };
 
-var Actor =  function(x, y, color, srcs, offset, player){
+
+
+/* Actors, both player characters and not. */
+
+var Actor =  function(x, y, color, srcs, offset, type){
     if (x instanceof Actor) {
         this.x = x.x;
         this.y = x.y;
@@ -97,7 +103,7 @@ var Actor =  function(x, y, color, srcs, offset, player){
         this.prev = x.prev;
         this.saved = [null, null];
         this.minor_saved = null;
-        this.player = x.player;        
+        this.type = x.type;        
     } else {
         this.x = x;
         this.y = y;
@@ -107,15 +113,15 @@ var Actor =  function(x, y, color, srcs, offset, player){
         this.prev = {x:x, y:y};
         this.saved = [null, null];
         this.minor_saved = null;
-        this.player = player;
+        this.type = type;
     }
 };
 
 Actor.prototype.save = function (grid) {
     this.saved = [copy_obj(grid.tilemap),
-                  new Actor(this.x, this.y, this.color, this.src, this.offset, this.player)];
+                  new Actor(this.x, this.y, this.color, this.src, this.offset, this.type)];
     this.saved[1].minor_saved = this.minor_saved;
-    if (this.player){
+    if (this.type){
         localStorage.saved_game = JSON.stringify([brief_tilemap(this.saved[0]), this.saved[1]]);
     }
     return this.saved;
@@ -222,7 +228,7 @@ var new_grid = function (url, callbacks) {
     grid.move = function (actor, axis, dist) {
         // Move ren, call tile stepped on. Return false if move can't be made.
         // Checks for falling off, then calls the given tile's step method.
-        if (actor.player) count++;
+        if (actor.type === "player") count++;
         var prev = {x:actor.x, y:actor.y};
         actor.prev = prev;
         actor[axis] += dist;
@@ -233,7 +239,7 @@ var new_grid = function (url, callbacks) {
             actor.x = prev.x; actor.y = prev.y;
             return false;
         }
-        if (!actor.player) grid.transition();
+        if (actor.type !== "player") grid.transition();
         actor.prev = prev;
         return true;
     };
@@ -318,7 +324,7 @@ var new_grid = function (url, callbacks) {
     var save_squares = {};
     var dingsave = function (actor) {
         // A checkpoint; saves your game and goes 'ding'
-        if (actor.player) {
+        if (actor.type === "player") {
             grid.tiles[actor.x][actor.y].hash = "_";
             if (!save_squares["" + actor.x + actor.y]){
                 save_squares["" + actor.x + actor.y] = 

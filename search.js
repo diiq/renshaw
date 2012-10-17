@@ -40,7 +40,7 @@ var wander = function (grid, actor, depth) {
 
 var can_i_win = function (grid, actor) {
     actor = new Actor(actor);
-    actor.player = false;
+    actor.type = "search";
     var term = function (s) {
         return false;
     };
