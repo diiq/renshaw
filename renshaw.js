@@ -59,15 +59,47 @@
  *  
  * */
 
-var Actor =  function(x, y, color, srcs, offset){
-    this.x = x,
-    this.y = y, 
+var copy_obj = function (obj){
+    var ret = {};
+    for(var t in obj){
+        if (obj.hasOwnProperty(t)){
+            ret[t] = obj[t];
+        }
+    }
+    return ret;
+};
+
+var Actor =  function(x, y, color, srcs, offset, player){
+    this.x = x;
+    this.y = y;
     this.offset = offset;
-    this.src = srcs,
-    this.color  = color
+    this.src = srcs;
+    this.color = color;
     this.prev = {x:x, y:y};
-}
-Actor.prototype.save = function () {};
+    this.saved = null;
+    this.player = player;
+};
+
+Actor.prototype.save = function (grid) {
+    this.saved = [copy_obj(grid.tilemap),
+                  new Actor(this.x, this.y, this.color, this.src, this.offset, this.player)];
+    return this.saved;
+};
+
+Actor.prototype.load = function (actor) {
+    var recov = actor || this.saved[1];
+    if (recov) {
+        var tmp = this.saved;
+        for(var t in recov){
+            if (recov.hasOwnProperty(t)){
+                this[t] = recov[t];
+            }
+        }
+        this.saved = tmp;
+        return copy_obj(this.saved[0]);
+    }
+};
+
 
 
 var new_grid = function (url, callbacks) {
@@ -77,7 +109,7 @@ var new_grid = function (url, callbacks) {
     // Ren is the player character; he changes color, so he's got multiple sources.
     grid.ren = new Actor(0, 3, "white", 
                          {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
-                         {l:4, t:-95});
+                         {l:4, t:-95}, true);
 
 
     grid.map = function (f, xmin, xmax, ymin, ymax) {
@@ -126,9 +158,7 @@ var new_grid = function (url, callbacks) {
     };
 
     grid.save = function (fake) {
-        var s = [copy_obj(grid.tilemap), copy_obj(grid.ren)];
-        grid.saved = s;
-        // Long term save uses localStorage. Fails in IE7.
+        var s = grid.ren.save(grid);
         if (!fake){
             localStorage.saved_game = JSON.stringify([brief_tilemap(s[0]), s[1]]);
         }
@@ -138,15 +168,14 @@ var new_grid = function (url, callbacks) {
     grid.load = function(tilemap, ren){
         if (tilemap && ren) {
             grid.tilemap = copy_obj(tilemap);
-            grid.ren = copy_obj(ren);
+            grid.ren.load(ren);
         } else {
-            var s =  grid.saved;
-            if(s) {
-                grid.tilemap = copy_obj(s[0]);
-                grid.ren = copy_obj(s[1]);
+            var s = grid.ren.load();
+            if(s) { 
+                grid.tilemap = s;
             } else if (localStorage.saved_game){
                 s = JSON.parse(localStorage.saved_game);
-                grid.ren = s[1];
+                grid.ren.load(s[1]);
                 grid.tilemap = unbrief_tilemap(s[0]);
             }
         }
@@ -462,15 +491,6 @@ var new_grid = function (url, callbacks) {
 
     /** Saving and loading position, color, and tilemap **/
 
-    var copy_obj = function (obj){
-        var ret = {};
-        for(var t in obj){
-            if (obj.hasOwnProperty(t)){
-                ret[t] = obj[t];
-            }
-        }
-        return ret;
-    };
 
     grid.random_fill = function (w, h, set) {
         // This doesn't really belong here, but it will fill up with random tiles.

@@ -1,3 +1,4 @@
+var grid;
 $(document).ready(
 function () {
 
@@ -32,7 +33,7 @@ function () {
         $("#rewards").append("<div class='reward'>"+i+"</div>");
     };
 
-    var grid = new_grid(window.location.hash.slice(1) || "forealz.ren", 
+    grid = new_grid(window.location.hash.slice(1) || "forealz.ren", 
                        {ding:ding});
 
 
