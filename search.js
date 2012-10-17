@@ -39,6 +39,7 @@ var wander = function (grid, depth) {
 };
 
 var can_i_win = function (grid) {
+    return true;
     var term = function (s) {
         return false;
     };

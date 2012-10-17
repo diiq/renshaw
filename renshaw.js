@@ -58,6 +58,24 @@
  *     It's mostly general, but a few tricks will fail when ymax > 10; they are noted. 
  *  
  * */
+var brief_tilemap = function(tilemap) {
+    // A shortened, stringifyiable version of the tilemap
+    tilemap = tilemap || grid.tilemap;
+    var tm = {};
+    for (var ch in tilemap){
+        tm[tilemap[ch].id] = ch;
+    }
+    return tm;
+};
+
+var unbrief_tilemap = function(tm) {
+    // Reverse the process of brief_tilemap
+    var tilemap = {};
+    for (var ch in grid.tilemap){
+        tilemap[tm[grid.tilemap[ch].id]] = grid.tilemap[ch];
+    }
+    return tilemap;
+};
 
 var copy_obj = function (obj){
     var ret = {};
@@ -76,14 +94,19 @@ var Actor =  function(x, y, color, srcs, offset, player){
     this.src = srcs;
     this.color = color;
     this.prev = {x:x, y:y};
-    this.saved = null;
+    this.saved = [null, null];
+    this.minor_saved = null;
     this.player = player;
 };
 
 Actor.prototype.save = function (grid) {
     this.saved = [copy_obj(grid.tilemap),
                   new Actor(this.x, this.y, this.color, this.src, this.offset, this.player)];
+    if (this.player){
+        localStorage.saved_game = JSON.stringify([brief_tilemap(this.saved[0]), this.saved[1]]);
+    }
     return this.saved;
+
 };
 
 Actor.prototype.load = function (actor) {
@@ -99,7 +122,16 @@ Actor.prototype.load = function (actor) {
         return copy_obj(this.saved[0]);
     }
 };
-
+Actor.prototype.minor_save = function (){
+    this.minor_saved = [this.x, this.y];
+};
+Actor.prototype.minor_load = function () {
+    // Teleport back to that spot (minor_save)
+    if (this.minor_saved){
+        this.x = this.minor_saved[0];
+        this.y = this.minor_saved[1];
+    }
+};
 
 
 var new_grid = function (url, callbacks) {
@@ -107,9 +139,7 @@ var new_grid = function (url, callbacks) {
     var grid = {}, width, height;
 
     // Ren is the player character; he changes color, so he's got multiple sources.
-    grid.ren = new Actor(0, 3, "white", 
-                         {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
-                         {l:4, t:-95}, true);
+
 
 
     grid.map = function (f, xmin, xmax, ymin, ymax) {
@@ -138,44 +168,18 @@ var new_grid = function (url, callbacks) {
     };
 
 
-    var brief_tilemap = function(tilemap) {
-        // A shortened, stringifyiable version of the tilemap
-        tilemap = tilemap || grid.tilemap;
-        var tm = {};
-        for (var ch in tilemap){
-            tm[tilemap[ch].id] = ch;
-        }
-        return tm;
-    };
 
-    var unbrief_tilemap = function(tm) {
-        // Reverse the process of brief_tilemap
-        var tilemap = {};
-        for (var ch in grid.tilemap){
-            tilemap[tm[grid.tilemap[ch].id]] = grid.tilemap[ch];
-        }
-        return tilemap;
-    };
-
-    grid.save = function (fake) {
-        var s = grid.ren.save(grid);
-        if (!fake){
-            localStorage.saved_game = JSON.stringify([brief_tilemap(s[0]), s[1]]);
-        }
-       return s;
-    };
-
-    grid.load = function(tilemap, ren){
-        if (tilemap && ren) {
+    grid.load = function(actor, tilemap, new_actor){
+        if (tilemap && new_actor) {
             grid.tilemap = copy_obj(tilemap);
-            grid.ren.load(ren);
+            actor.load(new_actor);
         } else {
-            var s = grid.ren.load();
+            var s = actor.load();
             if(s) { 
                 grid.tilemap = s;
             } else if (localStorage.saved_game){
                 s = JSON.parse(localStorage.saved_game);
-                grid.ren.load(s[1]);
+                actor.load(s[1]);
                 grid.tilemap = unbrief_tilemap(s[0]);
             }
         }
@@ -200,23 +204,22 @@ var new_grid = function (url, callbacks) {
         return true;
     };
 
-    grid.move = function (axis, dist, fake) {
+    grid.move = function (actor, axis, dist) {
         // Move ren, call tile stepped on. Return false if move can't be made.
         // Checks for falling off, then calls the given tile's step method.
-        if (!fake) count++;
-        var ren = grid.ren;
-        var prev = {x:ren.x, y:ren.y};
-        ren.prev = prev;
-        grid.ren[axis] += dist;
-        if (ren.x < 0 || ren.x >= width ||
-            ren.y < 0 || ren.y >= height ||
+        if (actor.player) count++;
+        var prev = {x:actor.x, y:actor.y};
+        actor.prev = prev;
+        actor[axis] += dist;
+        if (actor.x < 0 || actor.x >= width ||
+            actor.y < 0 || actor.y >= height ||
             // Okay, I'm sorry for this one. Mea Culpa. Disculpe.
-            !grid.tilemap[grid.tiles[ren.x][ren.y].hash].step(ren, fake)) {
-            ren.x = prev.x; ren.y = prev.y;
+            !grid.tilemap[grid.tiles[actor.x][actor.y].hash].step(actor)) {
+            actor.x = prev.x; actor.y = prev.y;
             return false;
         }
-        if (fake) grid.transition();
-        ren.prev = prev;
+        if (!actor.player) grid.transition();
+        actor.prev = prev;
         return true;
     };
 
@@ -224,15 +227,15 @@ var new_grid = function (url, callbacks) {
 
     /** These are tile stepping-upon functions. They return true if
      * ren moves, and false if ren may not move there. **/
-
-    var no_go = function (ren) { 
+ 
+    var no_go = function (actor) { 
         // Can't step here.
         return false;
     };
 
-    var color_step = function (ren) { 
+    var color_step = function (actor) { 
         // Step here only if you're the right color.
-        if(ren.color !== this.color){
+        if(actor.color !== this.color){
             return false;
         }
         return true;
@@ -240,11 +243,11 @@ var new_grid = function (url, callbacks) {
 
     var color_change = function (color) {
         // Changes your color if you step here, to color.
-        return function (ren) {
-            if (color_step.call(this, ren)) {
+        return function (actor) {
+            if (color_step.call(this, actor)) {
                 transitions.push(function () {
-                                     ren.color = color;
-                                     });
+                                     actor.color = color;
+                                 });
                 return true;
             }
             return false;
@@ -253,7 +256,7 @@ var new_grid = function (url, callbacks) {
 
     var map_swap = function (a){
         // Switches around the tilemap; takes a dictionary of ids to swap.
-        return function (ren){
+        return function (actor){
             transitions.push(
                 function () {
                     var ids = {};
@@ -273,15 +276,15 @@ var new_grid = function (url, callbacks) {
     var slide_memo = {};
     var slide = function (axis, dist){
         // Pushes you another step if you step here.
-        return function(ren, fake){
+        return function(actor){
             // Note that this would cause infinite recursion if two arrows
             // point at one another; therefore, I memoize.
-            var adr = "" + ren.x + ren.y; // fails when ymax > 10.
+            var adr = "" + actor.x + actor.y; // fails when ymax > 10.
             if (slide_memo[adr] === "recursion")
                                      return false;
             slide_memo[adr] = "recursion";
 
-            if (color_step.call(this, ren, fake) && grid.move(axis, dist, fake)) {
+            if (color_step.call(this, actor) && grid.move(actor, axis, dist)) {
                 delete slide_memo[adr];
                 return true;
             }
@@ -291,37 +294,29 @@ var new_grid = function (url, callbacks) {
         };
     };
 
-    var minor_save = function (ren) {
+    var minor_save = function (actor) {
         // You can teleport to this spot if you step here. 
-        grid.minor_saved = [ren.x, ren.y];
+        actor.minor_save();
         return true;
     };
 
-    grid.minor_load = function(){
-        // Teleport back to that spot (minor_save)
-        if (grid.minor_saved){
-            grid.ren.x = grid.minor_saved[0];
-            grid.ren.y = grid.minor_saved[1];
-        }
-    };
-
     var save_squares = {};
-    var dingsave = function (ren, fake) {
+    var dingsave = function (actor, fake) {
         // A checkpoint; saves your game and goes 'ding'
         if (!fake) {
-            grid.tiles[ren.x][ren.y].hash = "_";
-            if (!save_squares["" + ren.x + ren.y]){
-                save_squares["" + ren.x + ren.y] = 
-                    {color:ren.color, tilemap:brief_tilemap(grid.tilemap)};
+            grid.tiles[actor.x][actor.y].hash = "_";
+            if (!save_squares["" + actor.x + actor.y]){
+                save_squares["" + actor.x + actor.y] = 
+                    {color:actor.color, tilemap:brief_tilemap(grid.tilemap)};
             }
             transitions.push(function(){
                                  if (callbacks.ding)
                                      callbacks.ding(count);
                                  count = 0;
-                                 grid.tiles[ren.x][ren.y].hash = "_";
-                                 ren.color = save_squares["" + ren.x + ren.y].color;
-                                 grid.tilemap = unbrief_tilemap(save_squares["" + ren.x + ren.y].tilemap);
-                                 grid.save();
+                                 grid.tiles[actor.x][actor.y].hash = "_";
+                                 actor.color = save_squares["" + actor.x + actor.y].color;
+                                 grid.tilemap = unbrief_tilemap(save_squares["" + actor.x + actor.y].tilemap);
+                                 actor.save(grid);
                              });
         }
         return true;

@@ -1,4 +1,4 @@
-var grid;
+var grid, actors; // This line is for debugging purposes; delete & replace var below
 $(document).ready(
 function () {
 
@@ -35,7 +35,9 @@ function () {
 
     grid = new_grid(window.location.hash.slice(1) || "forealz.ren", 
                        {ding:ding});
-
+    actors = {ren:new Actor(0, 3, "white", 
+                            {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
+                            {l:4, t:-95}, true)};
 
     /** Rendering **/
 
@@ -63,7 +65,7 @@ function () {
     // The plural functions do the actual rendering, via map.
     var render_tiles = function(grid, buffer) {
         grid.real_map(render_tile(buffer), 
-                      grid.ren.x-width/2+2, grid.ren.x+width/2+2);
+                      actors.ren.x-width/2+2, actors.ren.x+width/2+2);
     };
 
 
@@ -75,7 +77,7 @@ function () {
 
     var render_specials = function (grid, buffer) {
         grid.map_specials(render_special(buffer), 
-                          grid.ren.x-width/2+2, grid.ren.x+width/2+2);
+                          actors.ren.x-width/2+2, actors.ren.x+width/2+2);
     };
 
 
@@ -124,11 +126,11 @@ function () {
                 var buffer = $("<div id='bgrid'></div>").hide();
                 render_tiles(grid, buffer);
                 render_specials(grid, buffer);            
-                render_ren(buffer, grid.ren);
+                render_ren(buffer, actors.ren);
                 $("#mask").append(buffer);
                 buffer.fadeIn(transition_speed, function () {
                                   $("#mask .ren").remove();
-                                  render_ren($("#mask"), grid.ren);
+                                  render_ren($("#mask"), actors.ren);
                                   $("#grid").empty();
                                   $("#grid").css({top:0, left:0});
                                   $("#grid").append(buffer.contents());
@@ -151,8 +153,8 @@ function () {
         
         render_tiles(grid, buffer);
         render_specials(grid, buffer);
-        render_ren($("#mask"), grid.ren);
-        shift_background(grid.ren);
+        render_ren($("#mask"), actors.ren);
+        shift_background(actors.ren);
 
         $("#grid").empty();
         $("#grid").css({top:0, left:0});
@@ -177,8 +179,8 @@ function () {
             };
             
             grid.real_map(rend,
-                          grid.ren.x+width/2+2-1,
-                          grid.ren.x+width/2+2);
+                          actors.ren.x+width/2+2-1,
+                          actors.ren.x+width/2+2);
         } else {
             rend = function (x, y, tile, rx, ry){
                 render_obj(buffer, 0, y, 
@@ -187,8 +189,8 @@ function () {
                            "tile", tile.src);
             };
             grid.real_map(rend, // this won't work
-                          grid.ren.x-width/2+2,
-                          grid.ren.x-width/2+2+1);            
+                          actors.ren.x-width/2+2,
+                          actors.ren.x-width/2+2+1);            
         }
         deep--;
     };
@@ -199,16 +201,16 @@ function () {
         // transitions, inact them first, but render them afterwards.
         continuation = render_transitions(grid, continuation);
         
-        shift_background(grid.ren);
+        shift_background(actors.ren);
 
         var buffer = $("<div></div>");
-        if (grid.ren.x == grid.ren.prev.x) { // motion in y just moves ren
+        if (actors.ren.x == actors.ren.prev.x) { // motion in y just moves ren
 
-            shift_ren(grid.ren, continuation);
+            shift_ren(actors.ren, continuation);
 
         } else {                             // motion in x moves the grid.
 
-            var xmove = (grid.ren.x-grid.ren.prev.x);
+            var xmove = (actors.ren.x-actors.ren.prev.x);
             var sign = xmove/Math.abs(xmove);
 
             // Move just one row at a time, in x.
@@ -226,7 +228,7 @@ function () {
                                        continuation();
                                    }});
 
-            shift_ren(grid.ren); // Motion in x may take longer, 
+            shift_ren(actors.ren); // Motion in x may take longer, 
                                  // so the continuation must be done there.
         }
     };
@@ -250,7 +252,7 @@ function () {
                            $("#mask").css("background-color", "#1f1f1f");
                            $("#impossible").hide();
                            if (!can_i_win(grid)){
-                               bang(grid.ren, function () {grid.load();
+                               bang(actors.ren, function () {grid.load(actors.ren);
                                                            initialize_render(grid);});
                            }
                        }
@@ -283,8 +285,8 @@ function () {
             if (!canmove) return;
             canmove = false;
 
-            if( !grid.move(a, d) ) {  // If the move fails, kill'em.
-                bang(grid.ren, function () {grid.load();
+            if( !grid.move(actors.ren, a, d) ) {  // If the move fails, kill'em.
+                bang(actors.ren, function () {grid.load(actors.ren);
                                             initialize_render(grid);
                                             canmove = true;});
                 return;
@@ -303,7 +305,7 @@ function () {
                   39:move("y", -1),   // right
                   40:move("x", -1),   // down
                   32:function(){
-                      grid.load();
+                      grid.load(actors.ren);
                       initialize_render(grid);}       // space
                  };
 
@@ -329,9 +331,9 @@ function () {
             $("body").keydown(
                 function (e) {
                     if(e.which === 32) { // Resume game
-                        grid.load();
+                        grid.load(actors.ren);
                     } if (e.which === 32 || e.which === 78) {
-                        grid.save();
+                        actors.ren.save(grid);
                         $("#overlay").fadeOut();
                         $("#loader").fadeOut();
 
