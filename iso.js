@@ -37,7 +37,11 @@ function () {
                        {ding:ding});
     actors = {ren:new Actor(0, 3, "white", 
                             {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
-                            {l:4, t:-95}, "player")};
+                            {l:4, t:-95}, "player"),
+              antiren:new Actor(10, 5, "white", 
+                            {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
+                            {l:4, t:-95}, "hater")
+             };
 
     /** Rendering **/
 
@@ -81,20 +85,41 @@ function () {
     };
 
 
-    var render_ren = function (buffer, ren){
-        render_obj(buffer, 10, ren.y, 4, -95, "ren", ren.src[ren.color]);
+    var render_actors = function (buffer, actor){
+        obj_map(function (v, k){
+                    var x, y = v.y;
+                    if (k==="ren") {
+                        x = 10;
+                    } else {
+                        x = v.x - actors.ren.x + 10;
+                    }
+                    render_obj(buffer, x, y, 
+                               4, -95, "ren", 
+                               v.src[v.color])
+                        .attr("id", k).css("z-index", 50-x);
+                }, actors);
     };
+
 
     // If the player character doesn't change color, there's no need to re-render;
     // we can just move it.
-    var shift_ren = function(ren, continuation) {
-        var x = 10, y = ren.y;
-        $(".ren").animate(
-            {left: grid_left(x, y) + ren.offset.l + "px",
-             top:  grid_top(x, y)  + ren.offset.t + "px"},
-            {duration:step_speed, complete:continuation});
-    };
 
+    var shift_actors = function (actors, continuation){
+        obj_map(function (v, k){ 
+                    var x, y = v.y;
+                    if (k==="ren") {
+                        x = 10;
+                    } else {
+                        x = v.x - actors.ren.x + 10;
+                    }
+                   $("#"+k)
+                        .animate(
+                            {left: grid_left(x, y) + v.offset.l + "px",
+                             top:  grid_top(x, y)  + v.offset.t + "px"},
+                            {duration:step_speed, complete:continuation})
+                        .css("z-index", 50-x);
+                }, actors);
+    };
 
     var shift_background = function (ren){
         // Shift the background to move in sync with the grid.
@@ -126,11 +151,11 @@ function () {
                 var buffer = $("<div id='bgrid'></div>").hide();
                 render_tiles(grid, buffer);
                 render_specials(grid, buffer);            
-                render_ren(buffer, actors.ren);
+                render_actors(buffer, actors);
                 $("#mask").append(buffer);
                 buffer.fadeIn(transition_speed, function () {
                                   $("#mask .ren").remove();
-                                  render_ren($("#mask"), actors.ren);
+                                  render_actors($("#mask"), actors);
                                   $("#grid").empty();
                                   $("#grid").css({top:0, left:0});
                                   $("#grid").append(buffer.contents());
@@ -153,7 +178,7 @@ function () {
         
         render_tiles(grid, buffer);
         render_specials(grid, buffer);
-        render_ren($("#mask"), actors.ren);
+        render_actors($("#mask"), actors);
         shift_background(actors.ren);
 
         $("#grid").empty();
@@ -206,7 +231,7 @@ function () {
         var buffer = $("<div></div>");
         if (actors.ren.x == actors.ren.prev.x) { // motion in y just moves ren
 
-            shift_ren(actors.ren, continuation);
+            shift_actors(actors, continuation);
 
         } else {                             // motion in x moves the grid.
 
@@ -228,7 +253,7 @@ function () {
                                        continuation();
                                    }});
 
-            shift_ren(actors.ren); // Motion in x may take longer, 
+            shift_actors(actors); // Motion in x may take longer, 
                                  // so the continuation must be done there.
         }
     };
@@ -291,12 +316,23 @@ function () {
                                             canmove = true;});
                 return;
             }
+            hater_move(actors.antiren, grid); // move the hater
+
             render(grid, function () {
                        if (!can_i_win(grid, actors.ren)) { // If they're stuck, kill'em.
                            tick_bang();
                        }
+                       if (actors.ren.x === actors.antiren.x && 
+                           actors.ren.y === actors.antiren.y ) {  
+                               // If the hater catches 'em, kill'em.
+                               bang(actors.ren, function () {grid.load(actors.ren);
+                                                             initialize_render(grid);
+                                                             canmove = true;});
+                           }
+                       
                        canmove = true;
                    });
+
         };
     };
 

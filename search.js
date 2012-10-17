@@ -110,6 +110,7 @@ var search = function (grid, actor, termination, score_cmp, escape) {
         grid.load(s.tilemap);
         var actor = new Actor(s.actor);
         if (grid.move.call({}, actor, mv[0], mv[1])){
+            grid.transition();
             return deeper({tilemap:grid.tilemap, actor:actor, depth:s.depth+1});
         };
         return false;
