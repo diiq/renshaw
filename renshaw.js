@@ -59,18 +59,25 @@
  *  
  * */
 
+var Actor =  function(x, y, color, srcs, offset){
+    this.x = x,
+    this.y = y, 
+    this.offset = offset;
+    this.src = srcs,
+    this.color  = color
+    this.prev = {x:x, y:y};
+}
+Actor.prototype.save = function () {};
+
 
 var new_grid = function (url, callbacks) {
 
     var grid = {}, width, height;
 
     // Ren is the player character; he changes color, so he's got multiple sources.
-    grid.ren = {x:0, y:3, 
-                offset: {l:4, t:-95},
-                src:{white:"wren.png", green:"gren.png", orang:"oren.png"},
-                color : "white",
-                prev:{x:0, y:3}};
-
+    grid.ren = new Actor(0, 3, "white", 
+                         {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
+                         {l:4, t:-95});
 
 
     grid.map = function (f, xmin, xmax, ymin, ymax) {
