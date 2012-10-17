@@ -88,20 +88,33 @@ var copy_obj = function (obj){
 };
 
 var Actor =  function(x, y, color, srcs, offset, player){
-    this.x = x;
-    this.y = y;
-    this.offset = offset;
-    this.src = srcs;
-    this.color = color;
-    this.prev = {x:x, y:y};
-    this.saved = [null, null];
-    this.minor_saved = null;
-    this.player = player;
+    if (x instanceof Actor) {
+        this.x = x.x;
+        this.y = x.y;
+        this.offset = x.offset;
+        this.src = x.srcs;
+        this.color = x.color;
+        this.prev = x.prev;
+        this.saved = [null, null];
+        this.minor_saved = null;
+        this.player = x.player;        
+    } else {
+        this.x = x;
+        this.y = y;
+        this.offset = offset;
+        this.src = srcs;
+        this.color = color;
+        this.prev = {x:x, y:y};
+        this.saved = [null, null];
+        this.minor_saved = null;
+        this.player = player;
+    }
 };
 
 Actor.prototype.save = function (grid) {
     this.saved = [copy_obj(grid.tilemap),
                   new Actor(this.x, this.y, this.color, this.src, this.offset, this.player)];
+    this.saved[1].minor_saved = this.minor_saved;
     if (this.player){
         localStorage.saved_game = JSON.stringify([brief_tilemap(this.saved[0]), this.saved[1]]);
     }
@@ -132,6 +145,9 @@ Actor.prototype.minor_load = function () {
         this.y = this.minor_saved[1];
     }
 };
+
+
+
 
 
 var new_grid = function (url, callbacks) {
@@ -169,19 +185,18 @@ var new_grid = function (url, callbacks) {
 
 
 
-    grid.load = function(actor, tilemap, new_actor){
-        if (tilemap && new_actor) {
-            grid.tilemap = copy_obj(tilemap);
-            actor.load(new_actor);
-        } else {
-            var s = actor.load();
+    grid.load = function(from){
+        if (from instanceof Actor){
+            var s = from.load();
             if(s) { 
                 grid.tilemap = s;
             } else if (localStorage.saved_game){
                 s = JSON.parse(localStorage.saved_game);
-                actor.load(s[1]);
+                from.load(s[1]);
                 grid.tilemap = unbrief_tilemap(s[0]);
             }
+        } else {
+            grid.tilemap = copy_obj(from);
         }
     };
 
@@ -301,9 +316,9 @@ var new_grid = function (url, callbacks) {
     };
 
     var save_squares = {};
-    var dingsave = function (actor, fake) {
+    var dingsave = function (actor) {
         // A checkpoint; saves your game and goes 'ding'
-        if (!fake) {
+        if (actor.player) {
             grid.tiles[actor.x][actor.y].hash = "_";
             if (!save_squares["" + actor.x + actor.y]){
                 save_squares["" + actor.x + actor.y] = 

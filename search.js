@@ -25,21 +25,22 @@ rendering like an idiot (which I am).
 
 */
 
-var wander = function (grid, depth) {
+var wander = function (grid, actor, depth) {
     depth = depth || 23;
     var term = function (s) {
         if (s.depth > depth) return true;
         return false;
     };
     var cmp = function (s1, s2) {
-        if (s1.ren.x < s2.ren.x) return true;
+        if (s1.actor.x < s2.actor.x) return true;
         return false;
     };
-    return search(grid, term, cmp);
+    return search(grid, actor, term, cmp);
 };
 
-var can_i_win = function (grid) {
-    return true;
+var can_i_win = function (grid, actor) {
+    actor = new Actor(actor);
+    actor.player = false;
     var term = function (s) {
         return false;
     };
@@ -51,11 +52,9 @@ var can_i_win = function (grid) {
     var esc = function(s){
         var d = new Date();
         if (d.getTime() - 16 > time) {
-        //            console.log("hoo");
             return true;
         }
-        if (grid.tiles[s.ren.x][s.ren.y].hash === "*"){
-            //console.log("here", s);
+        if (grid.tiles[s.actor.x][s.actor.y].hash === "*"){
             return true;
         }
         return false;
@@ -64,7 +63,7 @@ var can_i_win = function (grid) {
     var ret, pre = grid.saved;
 
     try {
-        search(grid, term, cmp, esc);
+        search(grid, actor, term, cmp, esc);
         ret = false;
 
     } catch (x) {
@@ -77,17 +76,12 @@ var can_i_win = function (grid) {
     return ret;
 };
 
-var search = function (grid, termination, score_cmp, escape) {
+var search = function (grid, actor, termination, score_cmp, escape) {
     escape = escape || function () {
         return false;
     };
 
-    var i, j, memo = [];
-    for (i = 0; i<grid.tiles.length; i++){
-        memo[i] = [];
-        for (var j=0; j<grid.tiles[i].length; j++)
-            memo[i][j] = [];
-    }
+    var i, j, memo = {};
     
     var match = function(tm1, tm2) {
         for(var e in tm1){
@@ -97,57 +91,61 @@ var search = function (grid, termination, score_cmp, escape) {
         return true;
     };
 
-    var ko = function(tilemap, ren){
-        var m = memo[ren.x][ren.y];
-        if (m.length !== 0){
+    var ko = function(tilemap, actor){
+        var m = memo[""+actor.x+actor.y];
+        if (m){
             for (var i=0; i<m.length; i++){
-                if (match(tilemap, m[i][0]) && ren.color == m[i][1].color){
+                if (match(tilemap, m[i][0]) && actor.color == m[i][1]){
                     return true;
                 }
             }
+        } else {
+            memo[""+actor.x+actor.y] = [];
         }
-        memo[ren.x][ren.y].push([tilemap, ren]);
+        memo[""+actor.x+actor.y].push([tilemap, actor.color]);
         return false;
     };
 
     var step = function (s, mv) {
-        grid.load(s.tilemap, s.ren);
-        if (grid.move.apply({}, mv)){
-            var ps = grid.save(true);
-            return deeper({tilemap:ps[0], ren:ps[1], depth:s.depth+1});
+        grid.load(s.tilemap);
+        var actor = new Actor(s.actor);
+        if (grid.move.call({}, actor, mv[0], mv[1])){
+            return deeper({tilemap:grid.tilemap, actor:actor, depth:s.depth+1});
         };
         return false;
     };
 
     var deeper = function (s) {
-        var moves = [["x", 1, true],
-                     ["x", -1, true],
-                     ["y", 1, true],
-                     ["y", -1, true]];
+        var moves = [["x",  1],
+                     ["x", -1],
+                     ["y",  1],
+                     ["y", -1]];
         var ss, mv, current = [s];
-        if (ko(s.tilemap, s.ren)) return false; //been here before
+
+        if (ko(s.tilemap, s.actor)) return false; //been here before
 
         if (escape(s)){
-            grid.load(s0.tilemap, s0.ren);
+            grid.load(s0.tilemap);
             throw {m:"Escape", s:s};
         }
 
-        if (!termination(s)) {
-            for (mv in moves) {
-                ss = step(s, moves[mv]);
-                if (ss && score_cmp(current[0], ss[0])) {
-                    current = ss.concat([moves[mv]]);
-                }
+        if (termination(s)) return current;
+
+        for (mv in moves) {
+            ss = step(s, moves[mv]);
+            if (ss && score_cmp(current[0], ss[0])) {
+                current = ss.concat([moves[mv]]);
             }
         }
+
         return current;
     };
     
-    var s0 = {tilemap:grid.tilemap, ren:grid.ren, depth:0};
+    var s0 = {tilemap:grid.tilemap, actor:actor, depth:0};
 
     var ret = deeper(s0);  
     
     // TODO preserve grid state before running
-    grid.load(s0.tilemap, s0.ren);
+    grid.load(s0.tilemap);
     return ret;
 };

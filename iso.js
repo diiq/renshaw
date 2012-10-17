@@ -246,12 +246,12 @@ function () {
             $("#mask").css("background-color", "#1F1F1F");
         }
         setTimeout(function () {
-                       if (count > 1 && !can_i_win(grid)){
+                       if (count > 1 && !can_i_win(grid, actors.ren)){
                            tick_bang(count-1);
                        } else {
                            $("#mask").css("background-color", "#1f1f1f");
                            $("#impossible").hide();
-                           if (!can_i_win(grid)){
+                           if (!can_i_win(grid, actors.ren)){
                                bang(actors.ren, function () {grid.load(actors.ren);
                                                            initialize_render(grid);});
                            }
@@ -279,12 +279,12 @@ function () {
     /** User input: **/
 
     var canmove = true;
-    var move = function(a, d){ // Move rets a function closing axis & direction.
+    var move = function(a, d){ // Move rets a function, closes axis & direction.
         return function () { 
             // Don't let the player move until previous move is complete.
             if (!canmove) return;
             canmove = false;
-
+            
             if( !grid.move(actors.ren, a, d) ) {  // If the move fails, kill'em.
                 bang(actors.ren, function () {grid.load(actors.ren);
                                             initialize_render(grid);
@@ -292,7 +292,7 @@ function () {
                 return;
             }
             render(grid, function () {
-                       if (!can_i_win(grid)) { // If they're stuck, kill'em.
+                       if (!can_i_win(grid, actors.ren)) { // If they're stuck, kill'em.
                            tick_bang();
                        }
                        canmove = true;
