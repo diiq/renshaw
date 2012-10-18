@@ -38,9 +38,9 @@ function () {
     actors = {ren:new Actor(0, 3, "white", 
                             {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
                             {l:4, t:-95}, "player"),
-              antiren:new Actor(0, 6, "white", 
-                            {white:"antiwren.png", green:"antigren.png", orang:"oren.png"}, 
-                            {l:17, t:-75}, "hater")
+              // antiren:new Actor(0, 6, "white", 
+              //               {white:"antiwren.png", green:"antigren.png", orang:"oren.png"}, 
+              //               {l:17, t:-75}, "hater")
              };
 
     /** Rendering **/
@@ -323,13 +323,13 @@ function () {
                        if (!can_i_win(grid, actors.ren)) { // If they're stuck, kill'em.
                            tick_bang();
                        }
-                       if (actors.ren.x === actors.antiren.x && 
-                           actors.ren.y === actors.antiren.y ) {  
-                               // If the hater catches 'em, kill'em.
-                               bang(actors.ren, function () {grid.load(actors.ren);
-                                                             initialize_render(grid);
-                                                             canmove = true;});
-                           }
+                       // if (actors.ren.x === actors.antiren.x && 
+                       //     actors.ren.y === actors.antiren.y ) {  
+                       //         // If the hater catches 'em, kill'em.
+                       //         bang(actors.ren, function () {grid.load(actors.ren);
+                       //                                       initialize_render(grid);
+                       //                                       canmove = true;});
+                       //     }
                        
                        canmove = true;
                    });
