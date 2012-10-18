@@ -38,9 +38,9 @@ function () {
     actors = {ren:new Actor(0, 3, "white", 
                             {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
                             {l:4, t:-95}, "player"),
-              antiren:new Actor(10, 5, "white", 
-                            {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
-                            {l:4, t:-95}, "hater")
+              antiren:new Actor(0, 6, "white", 
+                            {white:"antiwren.png", green:"antigren.png", orang:"oren.png"}, 
+                            {l:17, t:-75}, "hater")
              };
 
     /** Rendering **/
@@ -94,7 +94,7 @@ function () {
                         x = v.x - actors.ren.x + 10;
                     }
                     render_obj(buffer, x, y, 
-                               4, -95, "ren", 
+                               v.offset.l, v.offset.t, "ren", 
                                v.src[v.color])
                         .attr("id", k).css("z-index", 50-x);
                 }, actors);
@@ -310,13 +310,14 @@ function () {
             if (!canmove) return;
             canmove = false;
             
+            move_haters(actors, grid); // move the haters
+
             if( !grid.move(actors.ren, a, d) ) {  // If the move fails, kill'em.
                 bang(actors.ren, function () {grid.load(actors.ren);
                                             initialize_render(grid);
                                             canmove = true;});
                 return;
             }
-            hater_move(actors.antiren, grid); // move the hater
 
             render(grid, function () {
                        if (!can_i_win(grid, actors.ren)) { // If they're stuck, kill'em.
@@ -401,7 +402,8 @@ function () {
             preloaded[arguments[i]] = k.clone();
             $("body").append(k.hide());
         }
-    }("img/load.gif", "img/bang.png", "img/clock.png", "img/cclock.png",
+    }("img/antiwren.png", "img/antigren.png",
+        "img/load.gif", "img/bang.png", "img/clock.png", "img/cclock.png",
       "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
       "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 
       "img/gdown.png", "img/green.png", "img/grigh.png", 

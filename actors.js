@@ -62,11 +62,25 @@ Actor.prototype.minor_load = function () {
     }
 };
 
-var hater_move = function(actor, grid){
-    var moves = [[actor, "x",  1],
-                 [actor, "x", -1],
-                 [actor, "y",  1],
-                 [actor, "y", -1]];
-    var move = moves[Math.floor(Math.random()*moves.length)];
-    grid.move.apply(grid, move);
+
+var move_hater = function(actor, ren, grid) {
+    var move;
+    var dir = ren.x - actor.x;
+    if (dir != 0){
+        move = [actor, "x", dir/Math.abs(dir)];
+        if(grid.move.apply(grid, move))
+            return;
+    }
+    dir = ren.y - actor.y;
+    if (dir != 0){
+        move = [actor, "y", dir/Math.abs(dir)];
+        grid.move.apply(grid, move);
+    }
+};
+
+var move_haters = function(actors, grid){
+    for (k in actors) {
+      if (k != "ren" && actors.hasOwnProperty(k))
+          move_hater(actors[k], actors.ren, grid);
+    }
 };

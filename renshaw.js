@@ -185,18 +185,20 @@ var new_grid = function (url, callbacks) {
     var map_swap = function (a){
         // Switches around the tilemap; takes a dictionary of ids to swap.
         return function (actor){
-            transitions.push(
-                function () {
-                    var ids = {};
-                    for(tile in grid.tilemap){
-                        ids[grid.tilemap[tile].id] = grid.tilemap[tile];
-                    }
-                    for(tile in grid.tilemap){
-                        if (a[grid.tilemap[tile].id]) {
-                            grid.tilemap[tile] = ids[a[grid.tilemap[tile].id]];
+            if(actor.type !== "hater") {
+                transitions.push(
+                    function () {
+                        var ids = {};
+                        for(tile in grid.tilemap){
+                            ids[grid.tilemap[tile].id] = grid.tilemap[tile];
                         }
-                    }
-                });
+                        for(tile in grid.tilemap){
+                            if (a[grid.tilemap[tile].id]) {
+                                grid.tilemap[tile] = ids[a[grid.tilemap[tile].id]];
+                            }
+                        }
+                    });
+            }
             return true;
         };
     };
