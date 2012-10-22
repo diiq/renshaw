@@ -187,7 +187,14 @@ var new_grid = function (url, callbacks) {
         return true;
     };
 
-
+    var next_level = function (actor) {
+        if(actor.type === "player"){
+            grid.mport(grid.next_level);
+            callbacks.next_level();
+            actor.save(grid);
+        } 
+        return true;
+    };
 
     /** The default tile mapping **/
 
@@ -286,6 +293,7 @@ var new_grid = function (url, callbacks) {
 
                     "$": {id:"MSAVE", src:"msave.png", step : minor_save},
                     "*": {id:"SAVE", src:"save.png", otop:-25, oleft:-10, step : dingsave},
+                    "^": {id:"NEXT", src:"save.png", otop:-25, oleft:-10, step : next_level},
                     "_": {id:"SAVED", src:"saved.png", step : function(){return true;}},
 
                     "~": {id:"WATER", src:"water.png", step : no_go}
@@ -332,11 +340,12 @@ var new_grid = function (url, callbacks) {
             }
             ret[i] = rs.join(""); 
         }
-        return JSON.stringify({grid: ret.join(":"), save_squares:save_squares});
+        return JSON.stringify({grid: ret.join(":"), save_squares:save_squares, url:"", next_url:""});
     };
 
     grid.mport = function (save) {///gardening here TODO
         save_squares = save.save_squares;
+        grid.url = save.url;
         var i, j, cols = save.grid.split(":");
         width = cols.length;
         grid.tiles = [];
@@ -346,6 +355,9 @@ var new_grid = function (url, callbacks) {
                 grid.tiles[i][j] = {hash:grid.tiles[i][j]};
             }
         } 
+        $.ajax({url:save.next_url, dataType:"json", async:true, 
+                success:function(e) {grid.next_level = e;}});
+
         height = grid.tiles[0].length;
     };
 
@@ -372,12 +384,13 @@ var new_grid = function (url, callbacks) {
         grid.tiles[grid.tiles.length] = $.extend(true, [], grid.tiles[grid.tiles.length-1]); 
         width++;
     };
-
+    
 
 
     /** Load 'er up! **/
 
     $.ajax({url:url, dataType:"json", async:false, success:grid.mport});
+
     grid.specials = {//3:[{src:"baobad.png", x:66, y:2, offset:[-95, -287]}],
                      //3:[{src:"baobab.png", x:66, y:2, offset:[-110, -370]}]
                      //3:[{src:"clockwork.png", x:66, y:2, offset:[-50, -235]}]

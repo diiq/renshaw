@@ -1,3 +1,4 @@
+var grid, actors;
 $(document).ready(
 function () {
 
@@ -5,13 +6,16 @@ function () {
      tools for use as a level editor. 
 
      */
-
+    
     var 
     twidth = 25,
     theight = 25,
+    current = "A";
     grid = new_grid(window.location.hash.slice(1) || "../level1.ren", 
                     {ding:function(){$("#ding").get(0).play();}}),
-    current = "A";
+    actors  = {ren:new Actor(0, 3, "white", 
+                            {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
+                            {l:4, t:-95}, "player")};
 
     var pallete = function () {
         var i = -1;
@@ -63,15 +67,15 @@ function () {
 
     var render = function (grid) {
         $("#grid").empty();
-        grid.real_map(render_tile, grid.ren.x-15, grid.ren.x+30);
-        render_ren(grid.ren);
+        grid.real_map(render_tile, actors.ren.x-15, actors.ren.x+30);
+        render_ren(actors.ren);
 //        pallete();
     };
 
     /** User input **/
 
     var move = function(a, d){
-        return function () {grid.move(a, d);grid.transition();};
+        return function () {grid.move(actors.ren, a, d);grid.transition();};
     };
     var keymap = {37:move("x", -1),   // left
                   38:move("y", -1),   // up
@@ -92,7 +96,7 @@ function () {
                        });
 
     $("#load").click(function(){
-                         grid.mport($("#output").val());
+                         grid.mport(JSON.parse($("#output").val()));
                          render(grid);
                      });
 

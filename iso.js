@@ -33,8 +33,20 @@ function () {
         $("#rewards").append("<div class='reward'>"+i+"</div>");
     };
 
+    var next_level = function () {
+        $("#overlay").fadeIn({complete:function(){
+                                  actors.ren = new Actor(0, 3, "white", 
+                                                         {white:"wren.png", 
+                                                          green:"gren.png", 
+                                                          orang:"oren.png"}, 
+                                                         {l:4, t:-95}, "player");
+                                  actors.ren.save(grid);
+                                  initialize_render(grid);
+                                  $("#overlay").fadeOut();}});
+    };
+    
     grid = new_grid(window.location.hash.slice(1) || "forealz.ren", 
-                       {ding:ding});
+                       {ding:ding, next_level:next_level});
     actors = {ren:new Actor(0, 3, "white", 
                             {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
                             {l:4, t:-95}, "player"),
@@ -84,6 +96,7 @@ function () {
                           actors.ren.x-width/2+2, actors.ren.x+width/2+2);
     };
 
+    
 
     var render_actors = function (buffer, actor){
         obj_map(function (v, k){
@@ -100,7 +113,71 @@ function () {
                 }, actors);
     };
 
+    var render_possibilities = function (actor, buffer) {
+        render_obj(buffer, 11, actor.y, 0, -10, "poss", "poss.png").attr("id", "possx1");  
+        render_obj(buffer, 9,  actor.y, 0, -10, "poss", "poss.png").attr("id", "possxm1");  
+        render_obj(buffer, 10, actor.y+1, 0, -10, "poss", "poss.png").attr("id", "possy1");
+        render_obj(buffer, 10, actor.y-1, 0, -10, "poss", "poss.png").attr("id", "possym1");  
+        hideshow_possibilities(actor, buffer);
+    };
 
+    var shift_possibilities = function (actor, buffer) {
+        var x = 10; var y = actor.y;
+        $(".poss").hide();
+        $("#possx1")
+            .css(
+                {left: grid_left(x+1, y) + 0   + "px",
+                 top:  grid_top(x+1, y)  + -15 + "px"}
+                );
+        $("#possxm1")
+            .css(
+                {left: grid_left(x-1, y) + 0   + "px",
+                 top:  grid_top(x-1, y)  + -15 + "px"}
+                );
+        $("#possy1")
+            .css(
+                {left: grid_left(x, y+1) + 0   + "px",
+                 top:  grid_top(x, y+1)  + -15 + "px"}
+                );
+        $("#possym1")
+            .css(
+                {left: grid_left(x, y-1) + 0   + "px",
+                 top:  grid_top(x, y-1)  + -15 + "px"}
+                );
+        
+        hideshow_possibilities(actor, buffer);
+    };
+
+    var hideshow_possibilities = function (actor, buffer) {
+        var tester = new Actor(actor); tester.type = "search";
+        if (grid.move(tester, "x", 1)) {
+            console.log("here");
+            $("#possx1").show();
+        } else { console.log("there");
+            $("#possx1").hide();
+        }
+
+        tester = new Actor(actor); tester.type = "search";
+        if (grid.move(tester, "x", -1)) {
+            console.log("here");$("#possxm1").show();
+        } else { console.log("there");
+            $("#possxm1").hide();
+        }
+
+        tester = new Actor(actor); tester.type = "search";
+        if (grid.move(tester, "y", 1)) {
+            console.log("here");$("#possy1").show();
+        } else { console.log("there");
+            $("#possy1").hide();
+        }
+
+        tester = new Actor(actor); tester.type = "search";
+        if (grid.move(tester, "y", -1)) {
+            console.log("here");$("#possym1").show();
+        } else {
+            $("#possym1").hide();
+        }
+    };
     // If the player character doesn't change color, there's no need to re-render;
     // we can just move it.
 
@@ -116,7 +193,7 @@ function () {
                         .animate(
                             {left: grid_left(x, y) + v.offset.l + "px",
                              top:  grid_top(x, y)  + v.offset.t + "px"},
-                            {duration:step_speed, complete:continuation})
+                            {duration:step_speed, complete:continuation}) // TODO this is wrong.
                         .css("z-index", 50-x);
                 }, actors);
     };
@@ -161,7 +238,7 @@ function () {
                                   $("#grid").append(buffer.contents());
                                   $("#mask #bgrid").remove();
                                   
-                                  continuation();
+                                  continuation($("#grid"));
                               });
             };
         } else {
@@ -174,16 +251,19 @@ function () {
         // The first time to render, no clever shortcuts: everything must
         // be placed. Also useful for big instant changes, like a restore-from-save.
         var buffer = $("<div></div>");
-        $(".ren").remove();
-        
+        $(".ren").remove();        
+        $(".poss").remove();
+
         render_tiles(grid, buffer);
         render_specials(grid, buffer);
         render_actors($("#mask"), actors);
+        render_possibilities(actors.ren, $("#mask"));
         shift_background(actors.ren);
-
+        
         $("#grid").empty();
         $("#grid").css({top:0, left:0});
         $("#grid").append(buffer.contents());
+
     };
 
     var deep = -1; // Sloppy; TODO
@@ -224,11 +304,13 @@ function () {
         // If we haven't moved forward or backward, we can just move Ren; 
         // otherwise, you'll have to move the whole grid. If there are 
         // transitions, inact them first, but render them afterwards.
+        $(".possibility").remove();
+
         continuation = render_transitions(grid, continuation);
         
         shift_background(actors.ren);
-
         var buffer = $("<div></div>");
+
         if (actors.ren.x == actors.ren.prev.x) { // motion in y just moves ren
 
             shift_actors(actors, continuation);
@@ -250,12 +332,13 @@ function () {
                                 left: '-='+sign*x_magic[0]
                                }, {duration:step_speed, complete:function () {
                                        render_new_row(grid, $("#grid"), sign);
-                                       continuation();
+                                       continuation($("#grid"));
                                    }});
 
             shift_actors(actors); // Motion in x may take longer, 
                                  // so the continuation must be done there.
         }
+        shift_possibilities(actors.ren, $("#grid"));
     };
 
 
@@ -402,7 +485,7 @@ function () {
             preloaded[arguments[i]] = k.clone();
             $("body").append(k.hide());
         }
-    }("img/antiwren.png", "img/antigren.png",
+    }("img/antiwren.png", "img/antigren.png", "img/poss.png",
         "img/load.gif", "img/bang.png", "img/clock.png", "img/cclock.png",
       "img/gleft.png", "img/gren.png", "img/gupup.png", "img/gwswap.png", 
       "img/water.png", "img/wgchange.png", "img/wleft.png", "img/wrigh.png", 

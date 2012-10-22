@@ -54,7 +54,8 @@ var can_i_win = function (grid, actor) {
         if (d.getTime() - 16 > time) {
             return true;
         }
-        if (grid.tiles[s.actor.x][s.actor.y].hash === "*"){
+        if (grid.tiles[s.actor.x][s.actor.y].hash === "*" ||
+            grid.tiles[s.actor.x][s.actor.y].hash === "^"){
             return true;
         }
         return false;

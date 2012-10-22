@@ -32,7 +32,10 @@ Actor.prototype.save = function (grid) {
                   new Actor(this.x, this.y, this.color, this.src, this.offset, this.type)];
     this.saved[1].minor_saved = this.minor_saved;
     if (this.type){
-        localStorage.saved_game = JSON.stringify([brief_tilemap(this.saved[0]), this.saved[1]]);
+        localStorage.saved_game = JSON.stringify(
+            [brief_tilemap(this.saved[0]), 
+             this.saved[1],
+             grid.url]);
     }
     return this.saved;
 
