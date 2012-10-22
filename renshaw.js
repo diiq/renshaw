@@ -1,76 +1,11 @@
 /* This file defines the game-logic of Renshaw's Disco. 
- * There are four important data structures:
- *     grid.tiles --- a 2D array of objects; each has a .hash member, 
- *                    which refers *indirectly* to a tile object.
- *     grid.tilemap - the mapping from hash to tile objects. Altering the tilemap
- *                    alters every tile in the grid -- this is how transitions such as
- *                    green/white swaps and arrow rotations are accomplished.
- *     grid.ren ----- an object representing the player character; has position
- *                    (.x, .y), a previous position (.prev), 
- *                    a color (the player can change color) and 
- *                    img sources (as a dictionary, by color).  
- *     grid.specials  an array, indexed by blocks of adjacent x-rows, of 
- *                    tile-like objects. These are one-offs, for special effects.
- * 
- *     Tile objects include an id, an img source, and a function to be called if the
- *     player steps on that tile.
- * 
- * Important methods of grid include: 
- * 
- *     map(function, xmin, xmax, ymin, ymax), 
- *         which maps a function across tiles in grid.tiles in a given range. 
- *         all args bu function are optional.
- * 
- *     real_map(function, xmin, xmax, ymin, ymax), 
- *         which maps a function across tiles, after they are converted to tile objects
- *         all args but function are optional.
- * 
- *     map_specials(function, xmin, xmax),
- *         which maps a function across the special tiles in a given range.
- *  
- *     save(fake),
- *         which permanently saves the current game state (temporarily, if fake is true)
- * 
- *     load(tilemap, ren)
- *         which loads a game. Both arguments are optional; loads from save w/ no args.
- * 
- *     move(axis, dist, fake)
- *         which represents a player movement; axis is "x" or "y" and distance is 
- *         usually 1 or -1. Returns false if movement is disallowed. If fake is true, 
- *         all transitions caused by the movement are enacted *immediately*; otherwise,
- *         they are postponed until transition() is called.
- * 
- *     transition()
- *         which enacts all postponed transitions. These are usually changes to the 
- *         tilemap, or alterations to ren. Returns false if none waiting.
- * 
- *     xport() and mport(s), which produce and read grid.tiles to and a string
- * 
- *     random_fill(width, height, set)
- *         which creates a new grid filled with random tiles, hashes 
- *         chosen from the list 'set'
- * 
- *     This should be UI neutral, but you will have to pass in two externalities 
- *     when making a new grid;  a url from which to load an mport, 
- *     and an object of callbacks, currently only containing 'ding', a function to 
- *     perform on 'save', because it was easier that way. Pooh.
- * 
- *     It's mostly general, but a few tricks will fail when ymax > 10; they are noted. 
  *  
  * */
-
-
-/* Actors, both player characters and not. */
-
 
 
 var new_grid = function (url, callbacks) {
 
     var grid = {}, width, height;
-
-    // Ren is the player character; he changes color, so he's got multiple sources.
-
-
 
     grid.map = function (f, xmin, xmax, ymin, ymax) {
         // Silently ignores values outside domain.
