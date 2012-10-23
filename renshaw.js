@@ -120,7 +120,7 @@ var new_grid = function (url, callbacks) {
     var map_swap = function (a){
         // Switches around the tilemap; takes a dictionary of ids to swap.
         return function (actor){
-            if(actor.type !== "hater") {
+            if(actor.type !== "hater" && actor.type !== "possible") {
                 transitions.push(
                     function () {
                         var ids = {};

@@ -66,8 +66,10 @@ var can_i_win = function (grid, actor) {
     try {
         search(grid, actor, term, cmp, esc);
         ret = false;
-
+        console.log("fail");
     } catch (x) {
+        console.log("esc");
+
         if(x.m === "Escape")
             ret = [x.s];
         else throw x;

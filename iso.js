@@ -127,53 +127,52 @@ function () {
         $("#possx1")
             .css(
                 {left: grid_left(x+1, y) + 0   + "px",
-                 top:  grid_top(x+1, y)  + -15 + "px"}
+                 top:  grid_top(x+1, y)  + -5 + "px"}
                 );
         $("#possxm1")
             .css(
                 {left: grid_left(x-1, y) + 0   + "px",
-                 top:  grid_top(x-1, y)  + -15 + "px"}
+                 top:  grid_top(x-1, y)  + -5 + "px"}
                 );
         $("#possy1")
             .css(
                 {left: grid_left(x, y+1) + 0   + "px",
-                 top:  grid_top(x, y+1)  + -15 + "px"}
+                 top:  grid_top(x, y+1)  + -5 + "px"}
                 );
         $("#possym1")
             .css(
                 {left: grid_left(x, y-1) + 0   + "px",
-                 top:  grid_top(x, y-1)  + -15 + "px"}
+                 top:  grid_top(x, y-1)  + -5 + "px"}
                 );
         
         hideshow_possibilities(actor, buffer);
     };
 
     var hideshow_possibilities = function (actor, buffer) {
-        var tester = new Actor(actor); tester.type = "search";
+        var tester = new Actor(actor); tester.type = "possible";
         if (grid.move(tester, "x", 1)) {
-            console.log("here");
             $("#possx1").show();
-        } else { console.log("there");
+        } else {
             $("#possx1").hide();
         }
 
-        tester = new Actor(actor); tester.type = "search";
+        tester = new Actor(actor); tester.type = "possible";
         if (grid.move(tester, "x", -1)) {
-            console.log("here");$("#possxm1").show();
-        } else { console.log("there");
+            $("#possxm1").show();
+        } else {
             $("#possxm1").hide();
         }
 
-        tester = new Actor(actor); tester.type = "search";
+        tester = new Actor(actor); tester.type = "possible";
         if (grid.move(tester, "y", 1)) {
-            console.log("here");$("#possy1").show();
-        } else { console.log("there");
+            $("#possy1").show();
+        } else {
             $("#possy1").hide();
         }
 
-        tester = new Actor(actor); tester.type = "search";
+        tester = new Actor(actor); tester.type = "possible";
         if (grid.move(tester, "y", -1)) {
-            console.log("here");$("#possym1").show();
+            $("#possym1").show();
         } else {
             $("#possym1").hide();
         }
