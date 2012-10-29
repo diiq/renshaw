@@ -3,7 +3,7 @@
  * */
 
 
-var new_grid = function (url, callbacks) {
+var new_grid = function (url, callbacks, embiggen) {
 
     var grid = {}, width, height;
 

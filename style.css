@@ -7,7 +7,7 @@ html, body {
 }
 
 #mask {
-    border: 1px solid #000;
+    border: 5px solid #000;
     margin: 0px auto;
     width:600px;
     height:100%;
@@ -29,7 +29,7 @@ html, body {
 #bgrid {
     position:absolute;
     padding:0px;
-    z-index:10;
+    z-index:51;
     top:0px;
     left:0px;
 }
@@ -65,17 +65,14 @@ html, body {
     margin:25px;
 }
 
-#buttons {
-    float:right;
-}
-
 .button {
-    margin:15px;
     background-color:#ccc;
     border:3px solid #333;
     border-radius: 10px;
     padding:10px;
     cursor:pointer;
+    width:100px;
+    margin: 15px auto;
 }
 .button:hover {
     background-color:#666;
@@ -174,3 +171,21 @@ html, body {
     margin-top:55px;
     font-size:24px;
 }
+
+#preferences {
+    position:absolute;
+    top:25px; 
+    width:100%;
+    left:0px;
+    text-align:center;
+    z-index:500;
+    display:none;
+}
+
+#preference_button {
+    position:absolute;
+    top:25px;
+    right:25px;
+    cursor:pointer;
+}
+

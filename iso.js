@@ -16,9 +16,9 @@ function () {
     y_magic = [-66, 7],
     max_left = -((width-4)*x_magic[0]),  // an offset for the whole grid
     max_top = -((width-1)*x_magic[1]+(height)*y_magic[1]),
-    step_speed = 125,  // Time, in ms, to take a single step.
-    transition_speed = 150; // Time, in ms, to animate a transition.    
-
+    step_speed = {easy: 125, hard:125},  // Time, in ms, to take a single step.
+    transition_speed = {easy: 300, hard:150}, // Time, in ms, to animate a transition.    
+    rating = "easy";
 
     var grid_left = function(x, y){
         return max_left+(y*y_magic[0]+x*x_magic[0]);
@@ -114,14 +114,16 @@ function () {
     };
 
     var render_possibilities = function (actor, buffer) {
-        render_obj(buffer, 11, actor.y, 0, -10, "poss", "poss.png").attr("id", "possx1");  
-        render_obj(buffer, 9,  actor.y, 0, -10, "poss", "poss.png").attr("id", "possxm1");  
-        render_obj(buffer, 10, actor.y+1, 0, -10, "poss", "poss.png").attr("id", "possy1");
-        render_obj(buffer, 10, actor.y-1, 0, -10, "poss", "poss.png").attr("id", "possym1");  
+        if (rating === "hard") return;
+        render_obj(buffer, 11, actor.y, 0, -5, "poss", "poss.png").attr("id", "possx1");  
+        render_obj(buffer, 9,  actor.y, 0, -5, "poss", "poss.png").attr("id", "possxm1");  
+        render_obj(buffer, 10, actor.y+1, 0, -5, "poss", "poss.png").attr("id", "possy1");
+        render_obj(buffer, 10, actor.y-1, 0, -5, "poss", "poss.png").attr("id", "possym1");  
         hideshow_possibilities(actor, buffer);
     };
 
     var shift_possibilities = function (actor, buffer) {
+        if (rating === "hard") return;
         var x = 10; var y = actor.y;
         $(".poss").hide();
         $("#possx1")
@@ -177,7 +179,7 @@ function () {
             $("#possym1").hide();
         }
     };
-    // If the player character doesn't change color, there's no need to re-render;
+    // If the player character doesn't change color, there's no need to re-render
     // we can just move it.
 
     var shift_actors = function (actors, continuation){
@@ -192,7 +194,7 @@ function () {
                         .animate(
                             {left: grid_left(x, y) + v.offset.l + "px",
                              top:  grid_top(x, y)  + v.offset.t + "px"},
-                            {duration:step_speed, complete:continuation}) // TODO this is wrong.
+                            {duration:step_speed[rating], complete:continuation}) // TODO this is wrong.
                         .css("z-index", 50-x);
                 }, actors);
     };
@@ -202,7 +204,7 @@ function () {
         // This goes funky on IE; I don't know why. TODO
         $("#mask").animate({'background-position-x':  -ren.x*x_magic[0],
                             'background-position-y': -ren.x*x_magic[1]}, 
-                           {duration: step_speed, 
+                           {duration: step_speed[rating], 
                             complete:  function () {
                                 $("#mask").css("background-color", 
                                                {orang:"#2f1f2f", 
@@ -229,7 +231,7 @@ function () {
                 render_specials(grid, buffer);            
                 render_actors(buffer, actors);
                 $("#mask").append(buffer);
-                buffer.fadeIn(transition_speed, function () {
+                buffer.fadeIn(transition_speed[rating], function () {
                                   $("#mask .ren").remove();
                                   render_actors($("#mask"), actors);
                                   $("#grid").empty();
@@ -323,13 +325,13 @@ function () {
             for(var i = 0; i<xmove*sign-1; i++){
                 $("#grid").animate({top: '-='+sign*x_magic[1],
                                     left: '-='+sign*x_magic[0]
-                                   }, {duration:step_speed, complete:function () {
+                                   }, {duration:step_speed[rating], complete:function () {
                                            render_new_row(grid, $("#grid"), sign);
                                        }});
             }
             $("#grid").animate({top: '-='+sign*x_magic[1],
                                 left: '-='+sign*x_magic[0]
-                               }, {duration:step_speed, complete:function () {
+                               }, {duration:step_speed[rating], complete:function () {
                                        render_new_row(grid, $("#grid"), sign);
                                        continuation($("#grid"));
                                    }});
@@ -434,7 +436,23 @@ function () {
 
     $("#impossible").hide(); // hide the stuck message
     $("#start").hide();      // and the "press space to begin" message
+    $("#preferences").hide();
+    $("#preference_button").click(function () {
+                                      $("#overlay").show();
+                                      $("#preferences").show();
+                                      $("#" + rating).css("background-color", "#bbf");
+                                      });
+    $("#easy").click(function () {rating = "easy";
+                                  $("#easy").css("background-color", "#bbf");
+                                  $("#hard").css("background-color", "#ccc");});
+    $("#hard").click(function () {rating = "hard";
+                                  $("#hard").css("background-color", "#bbf");
+                                  $("#easy").css("background-color", "#ccc");
+                                  $(".poss").hide();});
+    $("#resume").click(function () {$("#overlay").hide(); $("#preferences").hide();});
 
+
+                     
     $(window).load(
         function(){
             $("#limg").hide(); // hide the loading gif
