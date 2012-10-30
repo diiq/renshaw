@@ -40,6 +40,10 @@ Actor.prototype.save = function (grid) {
     return this.saved;
 
 };
+Actor.prototype.direction = function () {
+    console.log([this.prev.x - this.x, this.prev.y - this.y]);
+    return {x:this.prev.x - this.x, y:this.prev.y - this.y};
+};
 
 Actor.prototype.load = function (actor) {
     var recov = actor || this.saved[1];
@@ -53,9 +57,10 @@ Actor.prototype.load = function (actor) {
         this.saved = tmp;
         return copy_obj(this.saved[0]);
     }
+    return null;
 };
 Actor.prototype.minor_save = function (){
-    this.minor_saved = [this.x, this.y];
+    this.minor_saved = {x:this.x, y:this.y};
 };
 Actor.prototype.minor_load = function () {
     // Teleport back to that spot (minor_save)
@@ -66,24 +71,30 @@ Actor.prototype.minor_load = function () {
 };
 
 
-var move_hater = function(actor, ren, grid) {
-    var move;
-    var dir = ren.x - actor.x;
-    if (dir != 0){
-        move = [actor, "x", dir/Math.abs(dir)];
-        if(grid.move.apply(grid, move))
-            return;
+var move_hater = function(actor, goal, grid) {
+    console.log(goal);
+    var moves = [["x",  1],
+                 ["x", -1],
+                 ["y",  1],
+                 ["y", -1]];
+    var locs = [], tact, i=0, dist, min=10000, choice;
+    for (i=0; i<moves.length; i++) {
+        tact = new Actor(actor);
+        grid.move(tact, moves[i][0], moves[i][1]);
+        locs[i] = [tact.x, tact.y];
     }
-    dir = ren.y - actor.y;
-    if (dir != 0){
-        move = [actor, "y", dir/Math.abs(dir)];
-        grid.move.apply(grid, move);
+    console.log(locs, goal.x, goal.y);
+    // need a minimize TODO
+    for (i=0; i<moves.length; i++) {
+        dist = (Math.pow(goal.x - locs[i][0], 2) +
+                Math.pow(goal.y - locs[i][1], 2));
+        console.log(dist);
+        if (dist < min) {
+            min = dist;
+            choice = i;
+        }
     }
+    console.log(choice);
+    grid.move(actor, moves[choice][0], moves[choice][1]);
 };
 
-var move_haters = function(actors, grid){
-    for (k in actors) {
-      if (k != "ren" && actors.hasOwnProperty(k))
-          move_hater(actors[k], actors.ren, grid);
-    }
-};

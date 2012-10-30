@@ -32,7 +32,7 @@ var new_grid = function (url, callbacks) {
                         }, xmin, xmax, ymin, ymax);
     };
 
-
+    
 
     grid.load = function(from){
         if (from instanceof Actor){
@@ -108,9 +108,13 @@ var new_grid = function (url, callbacks) {
         // Changes your color if you step here, to color.
         return function (actor) {
             if (color_step.call(this, actor)) {
-                transitions.push(function () {
-                                     actor.color = color;
-                                 });
+                if(actor.type === "player") {
+                    transitions.push(function () {
+                                         actor.color = color;
+                                     });
+                } else {
+                    actor.color = color;
+                }
                 return true;
             }
             return false;
@@ -133,6 +137,9 @@ var new_grid = function (url, callbacks) {
                             }
                         }
                     });
+            }
+            if (actor.type == "hater"){
+                return false;   
             }
             return true;
         };
@@ -292,8 +299,8 @@ var new_grid = function (url, callbacks) {
                                "OSD":"OSR"})},
 
                     "$": {id:"MSAVE", src:"msave.png", step : minor_save},
-                    "*": {id:"SAVE", src:"save.png", otop:-25, oleft:-10, step : dingsave},
-                    "^": {id:"NEXT", src:"save.png", otop:-25, oleft:-10, step : next_level},
+                    "*": {id:"SAVE", src:"save.png",  step : dingsave},
+                    "^": {id:"NEXT", src:"save.png",  step : next_level},
                     "_": {id:"SAVED", src:"saved.png", step : function(){return true;}},
 
                     "~": {id:"WATER", src:"water.png", step : no_go}

@@ -8,8 +8,8 @@ function () {
      */
     
     var 
-    twidth = 50,
-    theight = 50,
+    twidth = 30,
+    theight = 30,
     width = Math.floor($("#mask").innerWidth()/twidth),
     height =  Math.floor($("#mask").innerHeight()/theight),
     step_speed = {easy: 125, hard:125},  // Time, in ms, to take a single step.
@@ -39,7 +39,17 @@ function () {
 
     actors  = {ren:new Actor(0, 3, "white", 
                             {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
-                            {l:0, t:0}, "player")};
+                            {l:0, t:0}, "player"),
+
+               pink:new Actor(10, 3, "white", 
+                            {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
+                            {l:0, t:0}, "hater"),
+               red:new Actor(10, 3, "white", 
+                              {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
+                              {l:0, t:0}, "hater")
+
+
+};
 
     var grid_top = function (x, y){
         return y*theight;
@@ -214,24 +224,23 @@ function () {
     };
 
     var render_new_rows = function (grid, buffer, xd, yd){
+        // TODO Y MOTION
         // This adds just one row to the current grid, to save rendering time
         // when no transitions are present. Purely an optimization for speed.
         var ol = parseInt(buffer.css('left'));
         var ot = parseInt(buffer.css('top'));
-
+        var miny, minx, maxy, maxx, loc;
         // First add x rows:
         var rend;
         if (xd != 0) {
-            var 
-            minx = (xd > 0) ? actors.ren.x + (width/2) - 1 :
+            minx = (xd > 0) ? actors.ren.x + (width/2) - xd :
                               actors.ren.x - (width/2),
             maxx = (xd > 0) ? actors.ren.x + (width/2) : 
-                              actors.ren.x - width/2 + 1,
-            loc = (xd > 0) ? width-1 : 0;
-            console.log(ol);
+                              actors.ren.x - width/2 - xd,
+            loc = (xd > 0) ? width-xd : 0;
             rend = function (x, y, tile){
                 render_obj(buffer, 
-                           loc, y,
+                           loc+x, y,
                            (tile.oleft || 0) - ol,
                            (tile.otop  || 0) - ot,
                            "tile", tile.src);
@@ -241,6 +250,29 @@ function () {
                           minx, maxx, 
                           actors.ren.y-height/2, actors.ren.y+height/2);
         }
+        // REPETITION GROSS TODO
+        if (yd != 0) {
+            miny = (yd > 0) ? actors.ren.y + (height/2) - 1 :
+                              actors.ren.y - (height/2),
+            maxy = (yd > 0) ? actors.ren.y + (height/2) : 
+                              actors.ren.y - height/2 + 1,
+            loc = (yd > 0) ? height-1 : 0;
+
+            rend = function (x, y, tile){
+                render_obj(buffer, 
+                           x, loc,
+                           (tile.oleft || 0) - ol,
+                           (tile.otop  || 0) - ot,
+                           "tile", tile.src);
+            };
+            
+            grid.real_map(rend, 
+                          actors.ren.x-width/2, actors.ren.x+width/2,
+                          miny, maxy);
+            
+                          
+        } 
+
     };
 
     var render = function (grid, continuation) {
@@ -261,9 +293,10 @@ function () {
                             complete:function () {
                                 render_new_rows(grid, $("#grid"), xmove, ymove);
                                 continuation($("#grid"));
+
                             }});
 
-        shift_actors(actors, continuation);
+        shift_actors(actors);
         hideshow_possibilities(actors.ren, $("#grid"));
     };
 
@@ -278,13 +311,13 @@ function () {
         if (count % 2) {
             $("#mask").css("background-color", "#FF0000");
         } else {
-            $("#mask").css("background-color", "#1F1F1F");
+            $("#mask").css("background-color", "#000");
         }
         setTimeout(function () {
                        if (count > 1 && !can_i_win(grid, actors.ren)){
                            tick_bang(count-1);
                        } else {
-                           $("#mask").css("background-color", "#1f1f1f");
+                           $("#mask").css("background-color", "#000");
                            $("#impossible").hide();
                            if (!can_i_win(grid, actors.ren)){
                                bang(actors.ren, function () {grid.load(actors.ren);
@@ -318,7 +351,10 @@ function () {
             if (!canmove) return;
             canmove = false;
             
-            move_haters(actors, grid); // move the haters
+//            move_haters(actors, grid); // move the haters
+            move_hater(actors.red, {x:actors.ren.prev.x, y:actors.ren.y}, grid);
+            move_hater(actors.pink, {x:actors.ren.x-actors.ren.direction().x*4+1,
+                                     y:actors.ren.y-actors.ren.direction().y*4+1}, grid);
 
             if( !grid.move(actors.ren, a, d) ) {  // If the move fails, kill'em.
                 bang(actors.ren, function () {grid.load(actors.ren);
@@ -333,6 +369,7 @@ function () {
                        }
                        canmove = true;
                    });
+            
             
         };
     };
