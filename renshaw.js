@@ -299,8 +299,8 @@ var new_grid = function (url, callbacks) {
                                "OSD":"OSR"})},
 
                     "$": {id:"MSAVE", src:"msave.png", step : minor_save},
-                    "*": {id:"SAVE", src:"save.png",  step : dingsave},
-                    "^": {id:"NEXT", src:"save.png",  step : next_level},
+                    "*": {id:"SAVE", src:"save.png", oleft:-8, otop:-24, step : dingsave},
+                    "^": {id:"NEXT", src:"save.png", oleft:-8, otop:-24, step : next_level},
                     "_": {id:"SAVED", src:"saved.png", step : function(){return true;}},
 
                     "~": {id:"WATER", src:"water.png", step : no_go}

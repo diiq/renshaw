@@ -12,8 +12,8 @@ function () {
     theight = 30,
     width = Math.floor($("#mask").innerWidth()/twidth),
     height =  Math.floor($("#mask").innerHeight()/theight),
-    step_speed = {easy: 125, hard:125},  // Time, in ms, to take a single step.
-    transition_speed = {easy: 300, hard:150}, // Time, in ms, to animate a transition.    
+    step_speed = {easy: 120, hard:120},  // Time, in ms, to take a single step.
+    transition_speed = {easy: 200, hard:100}, // Time, in ms, to animate a transition.    
     rating = "easy";
 
     var ding = function (i) { 
@@ -77,7 +77,8 @@ function () {
     // done to a hidden box or to the live one.
     var render_tile = function (buffer) {
         return function (x, y, tile){
-            render_obj(buffer, x, y, tile.oleft || 0, tile.otop || 0, "tile", tile.src);
+            // TODO: 2d offsets? 
+            render_obj(buffer, x, y,  0, 0, "tile", tile.src);
         };
     };
 
@@ -241,8 +242,8 @@ function () {
             rend = function (x, y, tile){
                 render_obj(buffer, 
                            loc+x, y,
-                           (tile.oleft || 0) - ol,
-                           (tile.otop  || 0) - ot,
+                            - ol,
+                            - ot,
                            "tile", tile.src);
             };
             

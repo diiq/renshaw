@@ -394,7 +394,7 @@ function () {
             if (!canmove) return;
             canmove = false;
             
-            move_haters(actors, grid); // move the haters
+           // move_haters(actors, grid); // move the haters
 
             if( !grid.move(actors.ren, a, d) ) {  // If the move fails, kill'em.
                 bang(actors.ren, function () {grid.load(actors.ren);
