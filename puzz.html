@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+  <head> 
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8"/> 
+    <title>Renshaw</title> 
+    <link href="style.css" title="Medium" rel="stylesheet" /> 
+    <script src="jquery-1.8.2.min.js"></script>
+    <script src="json2.js"></script>
+    <script src="utils.js"></script>
+    <script src="actors.js"></script>
+    <script src="renshaw.js"></script>
+    <script src="iso.js"></script>
+    <script src="search.js"></script>
+  </head> 
+  <body> 
+    <div id="mask"><div id="grid"></div></div>
+    <div id="rewards"></div>
+    <div id="messages"></div>
+    <audio id="ding">
+      <source src="sound/ding2.mp3" type="audio/mpeg" />
+      <source src="sound/ding2.ogg" type="audio/ogg" />
+    </audio>
+
+    <audio id="bang">
+      <source src="sound/bomb.mp3" type="audio/mpeg" />
+      <source src="sound/bomb.ogg" type="audio/ogg" />
+    </audio>
+
+    <div id="overlay"></div>
+
+    <div id="impossible" class="alert"><p>YOU CAN NEVER REACH YOUR GOAL FROM HERE.</p><p> STARVATION IS A TERRIBLE WAY TO DIE.</p><p> WE KILL, FROM MERCY, SO THAT YOU MIGHT NOT STARVE.</p></div>
+
+    <img id="preference_button" src="img/pref.png" />
+    <div id="preferences">
+      <div class="button" id="easy">Easy</div>
+      <div class="button" id="hard">Hard</div>
+      If I place myself in a situation where it becomes impossible to reach my goal, I would like to be killed out of mercy, to prevent starvation.
+      <input type="checkbox">Yes</input>
+      <input type="checkbox">No</input>
+      <div class="button" id="resume">Resume Game</div>
+    </div>
+    <div id="loader">
+      <img id="limg" src="img/load.gif" />
+      <div class="story">
+        <p id="start"></p>
+
+        <p>The Discotheque at Fassilia V is widely considered to be the most dangerous in the universe. The dance floor, which covers the entire surface of the planet, was constructed as a conservation effort, to encourage breeding among the few remaining native Fassilions.</p>
+        
+        <p>Due to the extinction of the Fassilions shortly thereafter in a series of disco-related accidents, the hall was opened to any citizen of the galaxy &mdash; any citizen willing, either, to obey its strict aesthetic rules, or to accept the consequences.</p>
+        
+        <p>Adrenaline junkies from across the universe trickle into the Fassilia system in ones or twos; they land and trek, step-by-step across the silent, bright, and barren corridors. It is considered a badge of honor to have "done the mile" on Fassilia V and lived.</p>
+        
+        <p>Among those who survive, rumors fly of shadowy figures prowling the horizon &mdash; a twisted few who stay longer, in whom the rules of the floor become so ingrained that they never leave. This, when discussed in hushed tones in dim bars, is called "Pulling a Renshaw." No one knows why.</p>
+
+<p style="text-align:right">&mdash;<em>A Dictionarie of Thingf Galactique</em></p>
+      </div>
+      </div>
+      
+  </body> 
+</html> 
