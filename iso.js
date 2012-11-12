@@ -29,28 +29,30 @@ function () {
 
     var ding = function (i) { 
         // Goes ding when there's stuff.
+
         $("#ding").get(0).play();
-        $("#rewards").append("<div class='reward'>"+i+"</div>");
+        $("#rewards").append("<img class='reward' src='img/coin.png'>");
+        actors.ren.coins += 1;
+
     };
 
     var next_level = function () {
+        canmove = true;
         $("#overlay").fadeIn({complete:function(){
-                                  actors.ren = new Actor(0, 3, "white", 
-                                                         {white:"wren.png", 
-                                                          green:"gren.png", 
-                                                          orang:"oren.png"}, 
-                                                         {l:4, t:-95}, "player");
+                                  actors.ren.x = 0;
+                                  actors.ren.y = 3;
+                                  actors.ren.color = "white";
                                   actors.ren.save(grid);
                                   initialize_render(grid);
                                   $("#overlay").fadeOut();}});
     };
     
-    grid = new_grid(window.location.hash.slice(1) || "forealz.ren", 
-                       {ding:ding, next_level:next_level});
+//    grid = new_grid(window.location.hash.slice(1) || "1.ren", 
+//                       {ding:ding, next_level:next_level});
     actors = {ren:new Actor(0, 3, "white", 
                             {white:"wren.png", green:"gren.png", orang:"oren.png"}, 
-                            {l:4, t:-95}, "player"),
-              // antiren:new Actor(0, 6, "white", 
+                            {l:4, t:-95}, "player")
+              // , antiren:new Actor(0, 6, "white", 
               //               {white:"antiwren.png", green:"antigren.png", orang:"oren.png"}, 
               //               {l:17, t:-75}, "hater")
              };
@@ -355,12 +357,13 @@ function () {
             $("#mask").css("background-color", "#1F1F1F");
         }
         setTimeout(function () {
-                       if (count > 1 && !can_i_win(grid, actors.ren)){
+                       var win = can_i_win(grid, actors.ren);
+                       if (count > 1 && !win){
                            tick_bang(count-1);
                        } else {
                            $("#mask").css("background-color", "#1f1f1f");
                            $("#impossible").hide();
-                           if (!can_i_win(grid, actors.ren)){
+                           if (!win){
                                bang(actors.ren, function () {grid.load(actors.ren);
                                                            initialize_render(grid);});
                            }
@@ -404,7 +407,7 @@ function () {
             }
 
             render(grid, function () {
-                       if (!can_i_win(grid, actors.ren)) { // If they're stuck, kill'em.
+                       if (canmove == false && !can_i_win(grid, actors.ren)) { // If they're stuck, kill'em.
                            tick_bang();
                        }
                        // if (actors.ren.x === actors.antiren.x && 
@@ -436,22 +439,19 @@ function () {
 
     $("#impossible").hide(); // hide the stuck message
     $("#start").hide();      // and the "press space to begin" message
-    $("#preferences").hide();
-    $("#preference_button").click(function () {
-                                      $("#overlay").show();
-                                      $("#preferences").show();
-                                      $("#" + rating).css("background-color", "#bbf");
-                                      });
-    $("#easy").click(function () {rating = "easy";
-                                  $("#easy").css("background-color", "#bbf");
-                                  $("#hard").css("background-color", "#ccc");});
-    $("#hard").click(function () {rating = "hard";
-                                  $("#hard").css("background-color", "#bbf");
-                                  $("#easy").css("background-color", "#ccc");
-                                  $(".poss").hide();});
-    $("#resume").click(function () {$("#overlay").hide(); $("#preferences").hide();});
-
-
+    $("#" + rating).css("background-color", "#bfb");
+    $("#easy").click(function () {if (rating === "easy"){
+                                      rating = "hard";
+                                       $("#easy").css("background-color", "#ccc");
+                                       $("#easy").css("color", "#444");
+                                      $(".poss").hide();
+                                  } else {
+                                      rating = "easy";
+                                      $("#easy").css("background-color", "#bfb");
+                                       $("#easy").css("color", "#000");
+                                       hideshow_possibilities(actors.ren);
+                                  }
+                                 });
                      
     $(window).load(
         function(){
@@ -468,13 +468,23 @@ function () {
             $("body").keydown(
                 function (e) {
                     if(e.which === 32) { // Resume game
+                        grid = new_grid(localStorage.url || "1.ren", 
+                                        {ding:ding, next_level:next_level});
                         grid.load(actors.ren);
+                        for(var i = 0; i<actors.ren.coins; i++)
+                            $("#rewards").append("<img class='reward' src='img/coin.png'>");
+
+                    } else if (e.which === 78) {
+                        grid = new_grid(window.location.hash.slice(1) || "1.ren", 
+                                        {ding:ding, next_level:next_level});
+                        
                     } if (e.which === 32 || e.which === 78) {
                         actors.ren.save(grid);
                         $("#overlay").fadeOut();
                         $("#loader").fadeOut();
 
                         // Attach default keymap.
+                        $("body").unbind("keydown");
                         $("body").keydown(function (e) {
                                               if (keymap[e.which]) {
                                                   keymap[e.which]();

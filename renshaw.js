@@ -4,7 +4,7 @@
 
 
 var new_grid = function (url, callbacks) {
-
+    console.log(url);
     var grid = {}, width, height;
 
     grid.map = function (f, xmin, xmax, ymin, ymax) {
@@ -194,10 +194,23 @@ var new_grid = function (url, callbacks) {
         return true;
     };
 
+    var default_tilemap = {color:"white",
+                           tilemap:{"white":"A","green":"B","orang":"F","WGC":"C",
+                                      "GWC":"D","OGC":"G","GOC":"H","OWC":"I","WOC":"J",
+                                      "GWS":"E","OWS":"K","GOS":"L","WSL":"M","WSR":"N",
+                                      "WSD":"O","WSU":"P","GSL":"Q","GSR":"R","GSD":"S",
+                                      "GSU":"T","OSL":"U","OSR":"V","OSD":"W","OSU":"X",
+                                      "RCL":"Y","RCC":"Z","MSAVE":"$","SAVE":"*","SAVED":"_",
+                                      "NEXT":"^", "WATER":"~"}};
+
     var next_level = function (actor) {
         if(actor.type === "player"){
+            if (callbacks.ding)
+                callbacks.ding(count);
             grid.mport(grid.next_level);
             callbacks.next_level();
+            actor.color = default_tilemap.color;
+            grid.tilemap = unbrief_tilemap(default_tilemap.tilemap);
             actor.save(grid);
         } 
         return true;
@@ -308,7 +321,6 @@ var new_grid = function (url, callbacks) {
                    };
 
 
-
     /** Special Tiles **/
     
     // These are tiles that are rendered atop the mapped grid; they
@@ -351,25 +363,131 @@ var new_grid = function (url, callbacks) {
     };
 
     grid.mport = function (save) {///gardening here TODO
-        save_squares = save.save_squares;
-        grid.url = save.url;
-        var i, j, cols = save.grid.split(":");
-        width = cols.length;
-        grid.tiles = [];
-        for(i=0; i<width; i++){
-            grid.tiles[i] = cols[i].split("");
-            for(j =0; j<grid.tiles[i].length; j++){
-                grid.tiles[i][j] = {hash:grid.tiles[i][j]};
-            }
-        } 
-        $.ajax({url:save.next_url, dataType:"json", async:true, 
-                success:function(e) {grid.next_level = e;}});
-
-        height = grid.tiles[0].length;
+        if(save) {
+            save_squares = save.save_squares;
+            grid.url = save.url;
+            localStorage.url = grid.url;
+            var i, j, cols = save.grid.split(":");
+            width = cols.length;
+            grid.tiles = [];
+            for(i=0; i<width; i++){
+                grid.tiles[i] = cols[i].split("");
+                for(j =0; j<grid.tiles[i].length; j++){
+                    grid.tiles[i][j] = {hash:grid.tiles[i][j]};
+                }
+            } 
+            $.ajax({url:save.next_url, dataType:"json", async:true, 
+                    success:function(e) {grid.next_level = e;}});
+            
+            height = grid.tiles[0].length;
+            return true;
+        }
+        return false;
     };
 
-    /** Saving and loading position, color, and tilemap **/
+    /** Fills **/
+    
+    grid.mile = function (awidth, alength) {
+        var agrid = [];
+        for(var i =0; i<awidth; i++){
+            agrid[i] = [];
+            for(var j =0; j<alength; j++){
+                agrid[i][j] = {hash:"A"};
+            }
+        }
+            
+        // This function is mysterious because of the use of these singl-char tags;
+        // It's dumb, but it would require a massive rewrite, and this
+        // function is really only of interest to me.
+        // 
+        // These, next to each other: GFIJACDBH
+        // These, anywhere: EKL*
+        // These, more rarely, w/prop color: MNOP, QRST, UVWX
+        // These, more rarely, anywhere: YZ~
+        // 
+        // Start with the corners.
+        agrid[0][0].hash = "A";
+        agrid[0][alength-1].hash = "A";
+        agrid[awidth-1][0].hash = "B";
+        agrid[awidth-1][alength-1].hash = "F";
 
+        function flip(weight){
+           return Math.random() < weight;
+        }
+
+        function choose(list, center, width){
+            var choice = ((Math.random()*2-1) +
+                          (Math.random()*2-1) +
+                          (Math.random()*2-1));
+            console.log(Math.floor(choice*width+center)+list.length, center, width);
+            return (list+list+list)[Math.floor(choice*width+center)+list.length];
+        }
+
+        function interp(aval, bval, dist){1
+            var choices;
+            if (flip(1)){
+                // Standard elements
+                if (flip(1)){
+                    // actual interps
+                    choices = "DBHLGFKIJACE~~~~";
+                    var col = {
+                        E:11, K:4, L:3,
+                        G:5,F:5,I:5,
+                        J:9,A:9,C:9,
+                        D:1,B:1, H:1, '~':14};
+                    var ret =  choose(choices, 
+                                      (col[aval]+
+                                       col[bval])/2.0,
+                                      Math.min(choices.length/2.0, dist/3.0));
+                    console.log(aval, bval, ret); return ret;
+                } else {
+                    // anywhere elts
+                    return choose("*EKL", 1.5, 2);
+                }
+            } else {
+                // rare elements
+                if (flip(0)){
+                    // arrows
+                    col = {white:"MNOP",
+                           green:"QRST",
+                           orang:"UVWX"};
+                    choices = col[acol] + col[bcol];
+                    return choose(choices);
+                } else {
+                    // anywhere elts
+                    return choose("YZ~", 1, 1.5);
+                }
+            }
+        }
+        function square(imin, imax, jmin, jmax) {
+            var ione = Math.floor((imin+imax)/2);
+            var jone = Math.floor((jmin+jmax)/2);
+            if (ione != imin || jone != jmin){
+                agrid[ione][jmin].hash = interp(agrid[imin][jmin].hash,
+                                               agrid[imax][jmin].hash, imax-imin);
+                agrid[ione][jmax].hash = interp(agrid[imin][jmax].hash,
+                                               agrid[imax][jmax].hash, imax-imin);
+
+                agrid[imin][jone].hash = interp(agrid[imin][jmin].hash,
+                                               agrid[imin][jmax].hash, jmax-jmin);
+                agrid[imax][jone].hash = interp(agrid[imax][jmin].hash,
+                                               agrid[imax][jmax].hash, jmax-jmin);
+
+                agrid[ione][jone].hash = interp(agrid[imax][jmin].hash,
+                                               agrid[imin][jmax].hash, jmax-jmin);
+
+                square(imin, ione, jmin, jone);
+                square(imin, ione, jone, jmax);
+                square(ione, imax, jmin, jone);
+                square(ione, imax, jone, jmax);
+            }
+        }
+        square(0, awidth-1, 0, alength-1);
+        console.log(agrid);
+        grid.tiles = agrid;
+        width = awidth;
+        height = alength;
+    };
 
     grid.random_fill = function (w, h, set) {
         // This doesn't really belong here, but it will fill up with random tiles.
@@ -394,8 +512,8 @@ var new_grid = function (url, callbacks) {
     
 
 
-    /** Load 'er up! **/
 
+    /** Load 'er up! **/
     $.ajax({url:url, dataType:"json", async:false, success:grid.mport});
 
     grid.specials = {//3:[{src:"baobad.png", x:66, y:2, offset:[-95, -287]}],

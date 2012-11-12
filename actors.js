@@ -8,12 +8,13 @@ var Actor =  function(x, y, color, srcs, offset, type){
         this.x = x.x;
         this.y = x.y;
         this.offset = x.offset;
-        this.src = x.srcs;
+        this.src = x.src;
         this.color = x.color;
-        this.prev = x.prev;
+        this.prev = {x:x.prev.x, y:x.prev.y};
         this.saved = [null, null];
         this.minor_saved = null;
-        this.type = x.type;        
+        this.type = x.type;
+        this.coins = x.coins;
     } else {
         this.x = x;
         this.y = y;
@@ -24,12 +25,14 @@ var Actor =  function(x, y, color, srcs, offset, type){
         this.saved = [null, null];
         this.minor_saved = null;
         this.type = type;
+        this.coins = 0;
     }
 };
 
 Actor.prototype.save = function (grid) {
     this.saved = [copy_obj(grid.tilemap),
-                  new Actor(this.x, this.y, this.color, this.src, this.offset, this.type)];
+                  new Actor(this)];
+    this.saved[1].prev = {x:this.x, y:this.y};
     this.saved[1].minor_saved = this.minor_saved;
     if (this.type){
         localStorage.saved_game = JSON.stringify(

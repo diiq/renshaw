@@ -135,4 +135,10 @@ function () {
 
     render(grid);
 
+    $("#mile").click(function() {
+                         grid.mile(50, 7);
+                         render(grid);
+                     });
+
+
 });
