@@ -208,7 +208,7 @@ var new_grid = function (url, callbacks) {
             if (callbacks.ding)
                 callbacks.ding(count);
             grid.mport(grid.next_level);
-            callbacks.next_level();
+            callbacks.next_level(grid.url);
             actor.color = default_tilemap.color;
             grid.tilemap = unbrief_tilemap(default_tilemap.tilemap);
             actor.save(grid);
@@ -283,7 +283,7 @@ var new_grid = function (url, callbacks) {
                     "W": {id:"OSD", src:"odown.png", color:"orang", step : slide("y", 1)},
                     "X": {id:"OSU", src:"oupup.png", color:"orang", step : slide("y", -1)},
 
-                    "Y": {id:"RCL", src:"clock.png", step : map_swap(
+                    "Y": {id:"RCL", src:"cclock.png", step : map_swap(
                               {"WSL":"WSU",
                                "GSL":"GSU",
                                "OSL":"OSU",
@@ -297,7 +297,7 @@ var new_grid = function (url, callbacks) {
                                "GSD":"GSL",
                                "OSD":"OSL"})},
 
-                    "Z": {id:"RCC", src:"cclock.png", step : map_swap(
+                    "Z": {id:"RCC", src:"clock.png", step : map_swap(
                               {"WSL":"WSD",
                                "GSL":"GSD",
                                "OSL":"OSD",

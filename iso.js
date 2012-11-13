@@ -18,7 +18,8 @@ function () {
     max_top = -((width-1)*x_magic[1]+(height)*y_magic[1]),
     step_speed = {easy: 125, hard:125},  // Time, in ms, to take a single step.
     transition_speed = {easy: 300, hard:150}, // Time, in ms, to animate a transition.    
-    rating = "easy";
+    rating = "easy",
+    sound = true;
 
     var grid_left = function(x, y){
         return max_left+(y*y_magic[0]+x*x_magic[0]);
@@ -30,14 +31,23 @@ function () {
     var ding = function (i) { 
         // Goes ding when there's stuff.
 
-        $("#ding").get(0).play();
+        if(sound) $("#ding").get(0).play();
         $("#rewards").append("<img class='reward' src='img/coin.png'>");
         actors.ren.coins += 1;
 
     };
 
-    var next_level = function () {
+    var next_level = function (url) {
         canmove = true;
+        if (url === "mile.ren"){
+            $("#mile").fadeIn().css('left', ($(window).width() - 
+                                             $("#mile").outerWidth()) / 2);
+            setTimeout(function(){$("#mile").fadeOut();}, 2000);
+            rating = "hard";
+            $("#easy").css("background-color", "#ccc");
+            $("#easy").css("color", "#444");
+            $(".poss").hide();
+        }
         $("#overlay").fadeIn({complete:function(){
                                   actors.ren.x = 0;
                                   actors.ren.y = 3;
@@ -250,9 +260,16 @@ function () {
         
     };
 
+    var render_mile = function (){
+        if(grid.url === "mile.ren"){
+            $("#count").html(actors.ren.x+"/5280");
+        }
+    };
+
     var initialize_render = function (grid) {
         // The first time to render, no clever shortcuts: everything must
         // be placed. Also useful for big instant changes, like a restore-from-save.
+        render_mile();
         var buffer = $("<div></div>");
         $(".ren").remove();        
         $(".poss").remove();
@@ -342,6 +359,7 @@ function () {
                                  // so the continuation must be done there.
         }
         shift_possibilities(actors.ren, $("#grid"));
+        render_mile();
     };
 
 
@@ -375,7 +393,7 @@ function () {
         // Bang kills you dead, by rendering a lightning flash
         // and playing a peal of thunder.
         $(".ren").remove();
-        $("#bang").get(0).play();
+        if (sound) $("#bang").get(0).play();
         var a = $("<img src='img/bang.png'>")
             .addClass("bang")
             .css({top:grid_top(10, ren.y)  - 350 + "px",
@@ -438,6 +456,8 @@ function () {
     /** START HERE Initially, do these things **/
 
     $("#impossible").hide(); // hide the stuck message
+    $("#mile").hide(); // hide the mile
+
     $("#start").hide();      // and the "press space to begin" message
     $("#" + rating).css("background-color", "#bfb");
     $("#easy").click(function () {if (rating === "easy"){
@@ -452,7 +472,21 @@ function () {
                                        hideshow_possibilities(actors.ren);
                                   }
                                  });
-                     
+    $("#mute").css("background-color", "#bfb");
+    $("#mute").click( function(){
+                          if (sound){
+                              sound = false;
+                              $("#mute").css("background-color", "#ccc");
+                              $("#mute").css("color", "#444");
+                              $("#mute").html("Unmute");
+                              $("#ding").get(0).pause();
+                              $("#bang").get(0).pause();
+                          } else {
+                              sound = true;
+                              $("#mute").css("background-color", "#bfb");
+                              $("#mute").css("color", "#000");
+                              $("#mute").html("Mute");
+                          }});
     $(window).load(
         function(){
             $("#limg").hide(); // hide the loading gif

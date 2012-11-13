@@ -109,9 +109,13 @@ function () {
 
 
     $("#search").click(function () {
-                           var ret = wander(grid); 
-                           console.log(ret, ret.length-1);
-                           grid.tiles[ret[0].ren.x+1][ret[0].ren.y].hash = "*";
+                           var ret = wander(grid, actors.ren, 23); 
+                           console.log(ret);
+                           actors.ren = ret[0].actor;
+                           grid.tilemap = ret[0].tilemap;
+                           
+//                           grid.tiles[ret[0].actor.x+1][ret[0].actor.y].hash = "*";
+ //                          grid.move(actors.ren, "x", 1);
                            render(grid);
                        });
 

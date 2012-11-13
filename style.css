@@ -1,14 +1,22 @@
 body {
 background-color:#111;
+font-family: Palatino;
 }
 
 html, body {
     margin:0px; padding:0px; height:100%;    overflow:hidden;
 }
-
+#all {
+    margin:0px auto;
+    width:900px;
+    position:relative;
+    padding:0px;
+    height:100%;
+}
 #mask {
     border: 5px solid #000;
     margin: 0px auto;
+    margin-right:260px;
     width:600px;
     height:100%;
     padding:0px;
@@ -74,10 +82,13 @@ html, body {
     cursor:pointer;
     width:150px;
     position:absolute;
-    bottom:10px;
+    bottom:5px;
     left:20px;
     margin: 15px auto;
     text-align:center;
+}
+#easy {
+    bottom:40px;
 }
 
 .button:hover {
@@ -101,7 +112,7 @@ html, body {
     position:absolute;
     top:55px;
     right:10px;
-    width:100px;
+    width:140px;
     padding-right:45px;
     text-align:right;
 }
@@ -172,7 +183,7 @@ html, body {
     text-align:center;
     margin-top:55px;
     font-size:24px;
-    color:#eee;
+    color:#999;
 }
 
 #stuffbox {
@@ -181,9 +192,27 @@ html, body {
     right:10px;
     border:5px solid #000;
     width:200px;
-    height:250px;
+    height:300px;
     background-color:#333;
     text-align:center;
+    overflow:hidden;
 }
-
+#instructions {
+    position:absolute;
+    top:340px;
+    right:10px;
+    color:#777;
+    width:200px;
+ }
 #log { position:absolute; top:0; left:0; border-bottom:5px solid #000}
+
+#count {font-size:40px; 
+        color:#111;
+        position:absolute; 
+        bottom:90px;
+        width:200px;
+        text-align:center;}
+
+.twitter-share-button {
+    padding-top:10px;
+}

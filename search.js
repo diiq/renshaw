@@ -26,6 +26,8 @@ rendering like an idiot (which I am).
 */
 
 var wander = function (grid, actor, depth) {
+    actor = new Actor(actor);
+    actor.type = "search";
     depth = depth || 23;
     var term = function (s) {
         if (s.depth > depth) return true;
