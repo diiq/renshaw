@@ -42,7 +42,7 @@ function () {
         if (url === "mile.ren"){
             $("#mile").fadeIn().css('left', ($(window).width() - 
                                              $("#mile").outerWidth()) / 2);
-            setTimeout(function(){$("#mile").fadeOut();}, 2000);
+            setTimeout(function(){$("#mile").fadeOut();}, 7000);
             rating = "hard";
             $("#easy").css("background-color", "#ccc");
             $("#easy").css("color", "#444");
